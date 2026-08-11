@@ -9,6 +9,31 @@ import type { Block, Brand, Message } from './types';
    missing key.
    ========================================================================== */
 
+/* ==========================================================================
+   Where the backend lives.
+
+   In development this is empty: every call is same-origin `/api/…` and the
+   Vite dev proxy (vite.config.ts) forwards it to localhost:8787. That proxy
+   only exists while `vite dev` is running — which is why a deployed build
+   needs VITE_API_URL, and why nothing needed configuring locally.
+
+   VITE_ is the right prefix here: this is a public URL, not a secret. The
+   OpenRouter key stays on the backend and never reaches the browser.
+   ========================================================================== */
+
+const RAW = (import.meta.env.VITE_API_URL ?? '').trim().replace(/\/+$/, '');
+
+/** Accepts a bare host too, e.g. "api.example.com". */
+export const API_BASE = RAW && !/^https?:\/\//i.test(RAW) ? `https://${RAW}` : RAW;
+
+const url = (path: string) => `${API_BASE}${path}`;
+
+/* Cross-origin, the browser will not send the saint_sid cookie unless asked.
+   Same-origin needs nothing, and sending `include` there is harmless but we
+   keep it exact. The backend must answer with an explicit
+   Access-Control-Allow-Origin (never "*") plus allow-credentials. */
+const withCookies: RequestInit = API_BASE ? { credentials: 'include' } : {};
+
 export interface Health {
   ai: boolean;
   model: string | null;
@@ -19,7 +44,10 @@ const OFFLINE: Health = { ai: false, model: null, brands: [] };
 
 export async function getHealth(): Promise<Health> {
   try {
-    const res = await fetch('/api/health', { signal: AbortSignal.timeout(2500) });
+    const res = await fetch(url('/api/health'), {
+      ...withCookies,
+      signal: AbortSignal.timeout(4000),
+    });
     if (!res.ok) return OFFLINE;
     const json = await res.json();
     return { ai: Boolean(json.ai), model: json.model ?? null, brands: json.brands ?? [] };
@@ -105,7 +133,8 @@ export async function streamChat(
 ): Promise<void> {
   let res: Response;
   try {
-    res = await fetch('/api/chat', {
+    res = await fetch(url('/api/chat'), {
+      ...withCookies,
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),

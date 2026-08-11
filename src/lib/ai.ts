@@ -1,5 +1,5 @@
 import type { Brand, CatalogItem } from './types';
-import { brandContext } from './server';
+import { API_BASE, brandContext } from './server';
 import { sleep } from './utils';
 
 /* ==========================================================================
@@ -38,13 +38,18 @@ const itemPayload = (item: CatalogItem, brand: Brand) => ({
 async function post(body: unknown) {
   let res: Response;
   try {
-    res = await fetch('/api/copy', {
+    res = await fetch(`${API_BASE}/api/copy`, {
+      ...(API_BASE ? { credentials: 'include' as const } : {}),
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
   } catch {
-    throw new CopyUnavailable('The server is not running — start it with npm run dev.');
+    throw new CopyUnavailable(
+      API_BASE
+        ? 'Could not reach the backend. Check VITE_API_URL and that the server is up.'
+        : 'The server is not running — start it with npm run dev.',
+    );
   }
 
   if (!res.ok) {

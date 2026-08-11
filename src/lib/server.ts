@@ -1,0 +1,146 @@
+import type { Block, Brand, Message } from './types';
+
+/* ==========================================================================
+   The server, from the browser's side.
+
+   Everything here degrades: if the server is not running, or has no key, or
+   this brand is not switched on, `health` comes back disabled and the widget
+   carries on with the scripted flow. The demo never breaks because of a
+   missing key.
+   ========================================================================== */
+
+export interface Health {
+  ai: boolean;
+  model: string | null;
+  brands: string[];
+}
+
+const OFFLINE: Health = { ai: false, model: null, brands: [] };
+
+export async function getHealth(): Promise<Health> {
+  try {
+    const res = await fetch('/api/health', { signal: AbortSignal.timeout(2500) });
+    if (!res.ok) return OFFLINE;
+    const json = await res.json();
+    return { ai: Boolean(json.ai), model: json.model ?? null, brands: json.brands ?? [] };
+  } catch {
+    return OFFLINE;
+  }
+}
+
+export const aiHandles = (health: Health, brandId: string) =>
+  health.ai && health.brands.includes(brandId);
+
+/** Only what the server needs — and only what the owner has switched on. */
+export function brandContext(brand: Brand) {
+  return {
+    id: brand.id,
+    vertical: brand.vertical,
+    name: brand.name,
+    legal: brand.legal,
+    currency: brand.currency,
+    address: brand.address,
+    district: brand.district,
+    phone: brand.phone,
+    human: brand.assistant.human,
+    humanRole: brand.assistant.humanRole,
+    categories: brand.categories,
+    catalog: brand.catalog.map((i) => ({
+      id: i.id,
+      name: i.name,
+      categoryId: i.categoryId,
+      price: i.price,
+      duration: i.duration,
+      description: i.description,
+      tags: i.tags,
+      available: i.available,
+    })),
+    people: brand.people,
+    hours: brand.hours,
+    faq: brand.faq.map((f) => ({
+      q: f.q,
+      a: f.a,
+      source: f.source,
+      category: f.category,
+      status: f.status,
+    })),
+  };
+}
+
+/** The transcript, flattened to the plain turns a model expects. */
+export function toHistory(messages: Message[], limit = 16) {
+  return messages
+    .filter((m) => m.role === 'user' || m.role === 'bot')
+    .map((m) => ({
+      role: m.role === 'user' ? ('user' as const) : ('assistant' as const),
+      content: m.blocks
+        .filter((b): b is Extract<Block, { kind: 'text' }> => b.kind === 'text')
+        .map((b) => b.text)
+        .join('\n')
+        .trim(),
+    }))
+    .filter((m) => m.content)
+    .slice(-limit);
+}
+
+export type ChatEvent =
+  | { type: 'delta'; text: string }
+  | { type: 'replace'; text: string }
+  | { type: 'blocks'; blocks: Block[] }
+  | { type: 'tool'; name: string }
+  | { type: 'handoff'; reason: string }
+  | { type: 'error'; message: string }
+  | { type: 'done'; handoff?: boolean; failed?: boolean; guarded?: string };
+
+export class ChatUnavailable extends Error {}
+
+/**
+ * Streams one turn. Throws ChatUnavailable if the server declined, which the
+ * caller should treat as "fall back to the scripted flow".
+ */
+export async function streamChat(
+  body: { brand: ReturnType<typeof brandContext>; messages: ReturnType<typeof toHistory> },
+  onEvent: (e: ChatEvent) => void,
+  signal?: AbortSignal,
+): Promise<void> {
+  let res: Response;
+  try {
+    res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal,
+    });
+  } catch {
+    throw new ChatUnavailable('server unreachable');
+  }
+
+  if (!res.ok || !res.body) {
+    throw new ChatUnavailable(`server said ${res.status}`);
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop() ?? '';
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed.startsWith('data:')) continue;
+      const payload = trimmed.slice(5).trim();
+      if (!payload) continue;
+      try {
+        onEvent(JSON.parse(payload) as ChatEvent);
+      } catch {
+        /* half a frame — the next chunk completes it */
+      }
+    }
+  }
+}

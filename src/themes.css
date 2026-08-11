@@ -1,0 +1,166 @@
+/* ==========================================================================
+   Themes
+   Every brand supplies one --tint. The neutral ramp is mixed from it, so a
+   restaurant reads warm and a clinic reads cool without hand-picking greys.
+   Accents are set per brand per scheme, because those must be deliberate.
+   ========================================================================== */
+
+:root {
+  --tint: #8a7a5f;
+
+  --r-xs: 6px;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 26px;
+  --r-pill: 999px;
+}
+
+/* --- Neutral ramps ---------------------------------------------------------- */
+
+[data-theme='light'] {
+  color-scheme: light;
+
+  --paper: color-mix(in srgb, var(--tint) 6%, #ffffff);
+  --paper-2: color-mix(in srgb, var(--tint) 11%, #ffffff);
+  --surface: color-mix(in srgb, var(--tint) 1.5%, #ffffff);
+  --surface-2: color-mix(in srgb, var(--tint) 8%, #ffffff);
+  --surface-3: color-mix(in srgb, var(--tint) 15%, #ffffff);
+
+  --ink: color-mix(in srgb, var(--tint) 10%, #0d0b09);
+  --ink-2: color-mix(in srgb, var(--tint) 20%, #46403a);
+  --ink-3: color-mix(in srgb, var(--tint) 24%, #837c73);
+  --ink-4: color-mix(in srgb, var(--tint) 20%, #b5aea5);
+
+  --line: color-mix(in srgb, var(--tint) 15%, #e7e3dc);
+  --line-soft: color-mix(in srgb, var(--tint) 8%, #f1eee9);
+  --line-strong: color-mix(in srgb, var(--tint) 25%, #d3cdc3);
+
+  --overlay: color-mix(in srgb, var(--tint) 18%, rgba(18, 14, 10, 0.42));
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --paper: color-mix(in srgb, var(--tint) 8%, #0b0a09);
+  --paper-2: color-mix(in srgb, var(--tint) 10%, #121110);
+  --surface: color-mix(in srgb, var(--tint) 9%, #171614);
+  --surface-2: color-mix(in srgb, var(--tint) 12%, #201e1b);
+  --surface-3: color-mix(in srgb, var(--tint) 15%, #2b2825);
+
+  --ink: color-mix(in srgb, var(--tint) 7%, #f7f4ef);
+  --ink-2: color-mix(in srgb, var(--tint) 14%, #c1bab1);
+  --ink-3: color-mix(in srgb, var(--tint) 16%, #8c857c);
+  --ink-4: color-mix(in srgb, var(--tint) 16%, #66605a);
+
+  --line: color-mix(in srgb, var(--tint) 14%, #2d2a27);
+  --line-soft: color-mix(in srgb, var(--tint) 12%, #221f1d);
+  --line-strong: color-mix(in srgb, var(--tint) 18%, #3e3a36);
+
+  --overlay: rgba(0, 0, 0, 0.66);
+}
+
+/* Derived accent shades — same formula everywhere so tone stays consistent */
+[data-theme] {
+  --accent-soft: color-mix(in srgb, var(--accent) 13%, var(--surface));
+  --accent-line: color-mix(in srgb, var(--accent) 32%, var(--surface));
+  --spot-soft: color-mix(in srgb, var(--spot) 14%, var(--surface));
+  --spot-line: color-mix(in srgb, var(--spot) 32%, var(--surface));
+
+  --positive: #2f7d5c;
+  --warning: #a5731c;
+  --danger: #a63f2f;
+  --info: #37618c;
+  --positive-soft: color-mix(in srgb, var(--positive) 14%, var(--surface));
+  --warning-soft: color-mix(in srgb, var(--warning) 15%, var(--surface));
+  --danger-soft: color-mix(in srgb, var(--danger) 14%, var(--surface));
+  --info-soft: color-mix(in srgb, var(--info) 14%, var(--surface));
+}
+
+[data-theme='dark'] {
+  --positive: #6fc79b;
+  --warning: #dfae5f;
+  --danger: #e08a78;
+  --info: #86b3e0;
+}
+
+/* ==========================================================================
+   Brand 1 — Lumière · restaurant · candlelit, gold on charcoal
+   ========================================================================== */
+
+[data-brand='lumiere'] {
+  --tint: #a8703a;
+  --r-xs: 4px;
+  --r-sm: 7px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 18px;
+}
+[data-brand='lumiere'][data-theme='light'] {
+  --accent: #96601a;
+  --accent-hover: #7d4f11;
+  --accent-ink: #fffaf1;
+  --spot: #9b4433;
+  --spot-ink: #fff6f2;
+}
+[data-brand='lumiere'][data-theme='dark'] {
+  --accent: #dfae5b;
+  --accent-hover: #ecc172;
+  --accent-ink: #201502;
+  --spot: #cf7256;
+  --spot-ink: #2a0f07;
+}
+
+/* ==========================================================================
+   Brand 2 — Aurelia · clinic · calm, clinical teal, generous radii
+   ========================================================================== */
+
+[data-brand='aurelia'] {
+  --tint: #2c6f68;
+  --r-xs: 8px;
+  --r-sm: 12px;
+  --r-md: 18px;
+  --r-lg: 24px;
+  --r-xl: 30px;
+}
+[data-brand='aurelia'][data-theme='light'] {
+  --accent: #0e6b61;
+  --accent-hover: #0b544c;
+  --accent-ink: #ffffff;
+  --spot: #c26a4a;
+  --spot-ink: #fff7f4;
+}
+[data-brand='aurelia'][data-theme='dark'] {
+  --accent: #56b7a8;
+  --accent-hover: #71c9bb;
+  --accent-ink: #04201d;
+  --spot: #e0906e;
+  --spot-ink: #2a1109;
+}
+
+/* ==========================================================================
+   Brand 3 — Solène · salon · plum and blush, softest corners
+   ========================================================================== */
+
+[data-brand='solene'] {
+  --tint: #8a3a63;
+  --r-xs: 10px;
+  --r-sm: 14px;
+  --r-md: 20px;
+  --r-lg: 26px;
+  --r-xl: 34px;
+}
+[data-brand='solene'][data-theme='light'] {
+  --accent: #7c2e56;
+  --accent-hover: #64213f;
+  --accent-ink: #fff7fa;
+  --spot: #b3814f;
+  --spot-ink: #fffaf3;
+}
+[data-brand='solene'][data-theme='dark'] {
+  --accent: #d98cb4;
+  --accent-hover: #e6a3c6;
+  --accent-ink: #2a0d1c;
+  --spot: #d8ab74;
+  --spot-ink: #2a1c08;
+}

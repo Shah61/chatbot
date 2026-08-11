@@ -1,0 +1,552 @@
+/* ==========================================================================
+   Saint — foundation
+   Structure, primitives and type. Colour lives in themes.css, where each
+   brand supplies a single --tint that colours the whole neutral ramp.
+   ========================================================================== */
+
+@import './themes.css';
+
+:root {
+  --font-display: 'Cormorant Garamond', 'Times New Roman', serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  --shadow-xs: 0 1px 1.5px rgba(20, 14, 8, 0.06);
+  --shadow-sm: 0 1px 2px rgba(20, 14, 8, 0.06), 0 2px 8px rgba(20, 14, 8, 0.05);
+  --shadow-md: 0 1px 2px rgba(20, 14, 8, 0.05), 0 6px 14px rgba(20, 14, 8, 0.06),
+    0 14px 32px rgba(20, 14, 8, 0.07);
+  --shadow-lg: 0 2px 6px rgba(20, 14, 8, 0.06), 0 12px 28px rgba(20, 14, 8, 0.09),
+    0 34px 70px rgba(20, 14, 8, 0.12);
+  --shadow-xl: 0 4px 10px rgba(20, 14, 8, 0.08), 0 20px 44px rgba(20, 14, 8, 0.12),
+    0 60px 120px rgba(20, 14, 8, 0.2);
+  --edge: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+
+  --ease: cubic-bezier(0.32, 0.72, 0.29, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme='dark'] {
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.45), 0 12px 28px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 4px 14px rgba(0, 0, 0, 0.5), 0 30px 64px rgba(0, 0, 0, 0.62);
+  --shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.55), 0 54px 110px rgba(0, 0, 0, 0.7);
+  --edge: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* ==========================================================================
+   Reset
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  transition: background 0.5s var(--ease), color 0.5s var(--ease);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+}
+button {
+  cursor: pointer;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+svg {
+  display: block;
+  flex-shrink: 0;
+}
+img {
+  max-width: 100%;
+  display: block;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.scroll-area {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+.scroll-area::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.scroll-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scroll-area::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 99px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+.scroll-area::-webkit-scrollbar-thumb:hover {
+  background: var(--ink-4);
+  background-clip: content-box;
+}
+
+/* ==========================================================================
+   Type
+   ========================================================================== */
+
+/* The serif display face — every large piece of type in the product uses it:
+   headings, giant dashboard numerals, watermarks, brand and product names. */
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.012em;
+  line-height: 1.1;
+}
+.font-display.w-300 {
+  font-weight: 300;
+}
+.font-display.w-500 {
+  font-weight: 500;
+}
+
+.display-xxl {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(52px, 6vw, 94px);
+  line-height: 0.93;
+  letter-spacing: -0.032em;
+}
+.display-xl {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(36px, 4.2vw, 56px);
+  line-height: 1.02;
+  letter-spacing: -0.024em;
+}
+.display-lg {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 34px;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+.display-md {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 23px;
+  line-height: 1.16;
+  letter-spacing: -0.012em;
+}
+.display-sm {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 1.26;
+}
+
+.numeral {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.eyebrow {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.meta {
+  font-size: 12px;
+  color: var(--ink-3);
+  line-height: 1.5;
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+.price {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* ==========================================================================
+   Primitives
+   ========================================================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 38px;
+  padding: 0 17px;
+  border-radius: var(--r-pill);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background 0.2s var(--ease), color 0.2s var(--ease),
+    border-color 0.2s var(--ease), transform 0.14s var(--ease),
+    box-shadow 0.2s var(--ease), opacity 0.2s var(--ease);
+}
+.btn:active {
+  transform: translateY(0.5px) scale(0.99);
+}
+.btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: var(--shadow-sm);
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-ghost {
+  color: var(--ink-2);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: var(--shadow-xs);
+}
+.btn-ghost:hover:not(:disabled) {
+  border-color: var(--line-strong);
+  color: var(--ink);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-quiet {
+  color: var(--ink-2);
+}
+.btn-quiet:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+.btn-spot {
+  background: var(--spot);
+  color: var(--spot-ink);
+  box-shadow: var(--shadow-sm);
+}
+.btn-spot:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.btn-sm {
+  height: 32px;
+  padding: 0 13px;
+  font-size: 12.5px;
+}
+.btn-lg {
+  height: 44px;
+  padding: 0 22px;
+  font-size: 14px;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-sm);
+  color: var(--ink-3);
+  transition: background 0.16s var(--ease), color 0.16s var(--ease);
+}
+.icon-btn:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 22px;
+  padding: 0 9px;
+  border-radius: var(--r-pill);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.035em;
+  white-space: nowrap;
+  text-transform: capitalize;
+}
+.pill-neutral {
+  background: var(--surface-2);
+  color: var(--ink-2);
+  box-shadow: inset 0 0 0 1px var(--line-soft);
+}
+.pill-accent {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.pill-spot {
+  background: var(--spot-soft);
+  color: var(--spot);
+}
+.pill-positive {
+  background: var(--positive-soft);
+  color: var(--positive);
+}
+.pill-warning {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+.pill-danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+.pill-info {
+  background: var(--info-soft);
+  color: var(--info);
+}
+
+.dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 99px;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.field {
+  width: 100%;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-size: 13.5px;
+  color: var(--ink);
+  transition: border-color 0.18s var(--ease), box-shadow 0.18s var(--ease);
+}
+.field::placeholder {
+  color: var(--ink-4);
+}
+.field:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+textarea.field {
+  height: auto;
+  padding: 11px 13px;
+  line-height: 1.6;
+  resize: vertical;
+  font-family: inherit;
+}
+select.field {
+  appearance: none;
+  cursor: pointer;
+}
+
+.label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 7px;
+}
+
+.monogram {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 99px;
+  font-family: var(--font-display);
+  font-weight: 500;
+  user-select: none;
+}
+
+.switch {
+  position: relative;
+  width: 38px;
+  height: 22px;
+  border-radius: 99px;
+  background: var(--surface-3);
+  flex-shrink: 0;
+  transition: background 0.24s var(--ease);
+}
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 99px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.24s var(--ease);
+}
+.switch.on {
+  background: var(--accent);
+}
+.switch.on::after {
+  transform: translateX(16px);
+}
+
+/* ==========================================================================
+   Motion
+   ========================================================================== */
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes pop {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.965);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes blink {
+  0%,
+  60%,
+  100% {
+    opacity: 0.22;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+@keyframes ping {
+  0% {
+    box-shadow: 0 0 0 0 var(--accent-soft);
+  }
+  70% {
+    box-shadow: 0 0 0 7px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes drift {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-9px);
+  }
+}
+
+.animate-rise {
+  animation: rise 0.55s var(--ease-out) both;
+}
+.animate-pop {
+  animation: pop 0.46s var(--ease-out) both;
+}
+.animate-fade {
+  animation: fade 0.5s var(--ease) both;
+}
+
+.stagger > * {
+  animation: rise 0.6s var(--ease-out) both;
+}
+.stagger > *:nth-child(1) {
+  animation-delay: 0.02s;
+}
+.stagger > *:nth-child(2) {
+  animation-delay: 0.07s;
+}
+.stagger > *:nth-child(3) {
+  animation-delay: 0.12s;
+}
+.stagger > *:nth-child(4) {
+  animation-delay: 0.17s;
+}
+.stagger > *:nth-child(5) {
+  animation-delay: 0.22s;
+}
+.stagger > *:nth-child(6) {
+  animation-delay: 0.27s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

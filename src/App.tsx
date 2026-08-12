@@ -3,6 +3,7 @@ import { Icon } from './components/Icon';
 import { Site } from './components/site/Site';
 import { ChatWidget } from './components/chat/ChatWidget';
 import { AdminConsole } from './components/admin/AdminConsole';
+import { CommandPalette } from './components/CommandPalette';
 import { BRANDS, BRAND_ORDER, PRODUCT } from './lib/brands';
 import { LiveProvider, useLive } from './lib/live';
 import { StoreProvider, useStore } from './lib/store';
@@ -20,7 +21,7 @@ export default function App() {
 }
 
 function Shell() {
-  const { brandId, brand, scheme, setBrandId, setScheme } = useStore();
+  const { brandId, scheme, setBrandId, setScheme } = useStore();
   const live = useLive();
   const [view, setView] = useState<'store' | 'console'>('store');
 
@@ -61,14 +62,6 @@ function Shell() {
 
         <div className="bar-spacer" />
 
-        <span className="bar-hint">
-          <Icon name="sparkle" size={12} />
-          {view === 'store'
-            ? brand.vertical === 'restaurant'
-              ? 'Try “order the turbot” — the basket is live'
-              : 'Try “book me in on friday” — the flow is live'
-            : 'Open a menu item and let Saint write the description'}
-        </span>
 
         <div className="views" role="tablist">
           <button
@@ -101,6 +94,8 @@ function Shell() {
           <Icon name={scheme === 'light' ? 'moon' : 'sun'} size={16} />
         </button>
       </div>
+
+      <CommandPalette view={view} setView={setView} />
 
       <div className={cx('body', view === 'store' && 'scrolls')}>
         {view === 'store' ? (

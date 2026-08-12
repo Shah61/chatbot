@@ -72,6 +72,9 @@ export function brandContext(brand: Brand) {
     phone: brand.phone,
     human: brand.assistant.human,
     humanRole: brand.assistant.humanRole,
+    /* The "about" page copy. Send it so the model can answer about the room,
+       the studio, the way you work — the things that page claims. */
+    story: brand.story,
     categories: brand.categories,
     catalog: brand.catalog.map((i) => ({
       id: i.id,

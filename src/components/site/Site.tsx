@@ -1,23 +1,31 @@
+import { useEffect, useState } from 'react';
 import { Icon } from '../Icon';
+import {
+  CatalogView,
+  JournalView,
+  PageHead,
+  PeopleView,
+  StoryView,
+  VisitingView,
+  routeFor,
+  type Route,
+} from './pages';
+import { Featured, HomeJourney, HomeStory, HomeVisit } from './sections';
 import { useStore } from '../../lib/store';
 import type { Brand } from '../../lib/types';
-import { money } from '../../lib/utils';
+import { cx } from '../../lib/utils';
 import './site.css';
 
 /** Swap this helper for your own CDN and the whole site re-points. */
 export const photo = (id: string, w = 1600) =>
-  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=80`;
+  id.startsWith('photo-')
+    ? `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=80`
+    : `https://unsplash.com/photos/${id}/download?force=true&w=${w}`;
 
 const CTA_SECOND: Record<Brand['vertical'], string> = {
   restaurant: 'Book a table',
   clinic: 'Meet the team',
   salon: 'Meet the stylists',
-};
-
-const FEATURE_LEAD: Record<Brand['vertical'], { eyebrow: string; title: string; link: string }> = {
-  restaurant: { eyebrow: 'Tonight', title: 'What the kitchen is doing well.', link: 'Full menu' },
-  clinic: { eyebrow: 'Treatments', title: 'The appointments people book most.', link: 'All treatments' },
-  salon: { eyebrow: 'Services', title: 'What the chairs are booked for.', link: 'Full price list' },
 };
 
 /** Reads today's row out of the opening hours table. */
@@ -39,13 +47,55 @@ function openToday(brand: Brand) {
 }
 
 export function Site() {
-  const { brand } = useStore();
-  const lead = FEATURE_LEAD[brand.vertical];
-  const today = openToday(brand);
+  const { brand, scheme } = useStore();
+  const [nav, setNav] = useState<string | null>(null);
+  const dark = scheme === 'dark';
 
-  const available = brand.catalog.filter((i) => i.available);
-  const featured = [...available].sort((a, b) => b.sold - a.sold).slice(0, 3);
-  const rest = available.filter((i) => !featured.includes(i)).slice(0, 6);
+  /* A different business is a different site — go back to its front page. */
+  useEffect(() => {
+    setNav(null);
+    document.querySelector('.body')?.scrollTo({ top: 0 });
+  }, [brand.id]);
+
+  const route: Route = nav ? routeFor(brand, nav) : { kind: 'home' };
+  const go = (label: string | null) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    setNav(label);
+    document.querySelector('.body')?.scrollTo({ top: 0 });
+  };
+  const today = openToday(brand);
+  const heroItems = brand.vertical === 'salon'
+    ? brand.catalog.filter((item) => item.categoryId !== 'retail')
+    : brand.catalog;
+  const signatureCategory =
+    brand.vertical === 'restaurant' ? 'geprek' : brand.vertical === 'clinic' ? 'general' : 'cut';
+  const signature = [...heroItems]
+    .filter((item) => item.categoryId === signatureCategory)
+    .sort((a, b) => b.sold - a.sold)[0];
+
+
+  if (route.kind !== 'home') {
+    return (
+      <div className="site is-inner">
+        <SiteNav brand={brand} nav={nav} go={go} solid />
+        <div className="shell">
+          <PageHead title={route.title} blurb={route.blurb} />
+
+          {route.kind === 'catalog' && (
+            <CatalogView brand={brand} only={route.only} dark={dark} />
+          )}
+          {route.kind === 'people' && <PeopleView brand={brand} dark={dark} />}
+          {route.kind === 'visiting' && <VisitingView brand={brand} />}
+          {route.kind === 'journal' && <JournalView brand={brand} />}
+          {route.kind === 'story' && (
+            <StoryView brand={brand} photoUrl={photo(brand.images.story, 1000)} />
+          )}
+
+          <SiteFoot brand={brand} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="site">
@@ -55,21 +105,7 @@ export function Site() {
         <div className="hero-tint" />
         <div className="hero-scrim" />
 
-        <nav className="topnav">
-          <span className="mark">{brand.name}</span>
-          <div className="topnav-links">
-            {brand.nav.map((n) => (
-              <a key={n} href={`#${n.toLowerCase().replace(/\s/g, '-')}`}>
-                {n}
-              </a>
-            ))}
-          </div>
-          <span className="topnav-tel">
-            <Icon name="phone" size={14} />
-            {brand.phone}
-          </span>
-          <button className="btn btn-sm btn-light">{brand.hero.cta}</button>
-        </nav>
+        <SiteNav brand={brand} nav={nav} go={go} solid={false} />
 
         <div className="hero-inner">
           <div className="hero-eyebrow">
@@ -90,6 +126,14 @@ export function Site() {
               <Icon name="arrowRight" size={15} />
             </button>
             <button className="btn btn-lg btn-glass">{CTA_SECOND[brand.vertical]}</button>
+          </div>
+        </div>
+
+        <div className="hero-note">
+          <div className="hero-note-box" />
+          <div className="hero-note-tag">
+            <span>Signature</span>
+            <b>{signature?.name.split(',')[0]}</b>
           </div>
         </div>
 
@@ -132,97 +176,72 @@ export function Site() {
         </div>
       </div>
 
-      {/* ---------- featured ---------- */}
+      <HomeStory brand={brand} />
+      <HomeJourney brand={brand} />
+
       <div className="shell">
-        <section className="section">
-          <div className="section-head">
-            <div>
-              <div className="eyebrow">{lead.eyebrow}</div>
-              <h2>{lead.title}</h2>
-            </div>
-            <a className="section-link" href="#all">
-              {lead.link}
-              <Icon name="arrowRight" size={14} />
-            </a>
-          </div>
-
-          <div className="features">
-            {featured.map((item, i) => (
-              <button className="fcard" key={item.id}>
-                <div
-                  className="fcard-photo"
-                  style={{ backgroundImage: `url(${photo(brand.images.feature[i], 900)})` }}
-                />
-                <div className="fcard-top">
-                  {i === 0 && (
-                    <span className="glass-pill">
-                      {brand.vertical === 'restaurant' ? 'Most ordered' : 'Most booked'}
-                    </span>
-                  )}
-                  {item.duration && <span className="glass-pill">{item.duration}</span>}
-                </div>
-                <div className="fcard-body">
-                  <div className="fcard-name">{item.name}</div>
-                  <p className="fcard-desc">{item.description}</p>
-                  <div className="fcard-foot">
-                    <span className="fcard-price">{money(item.price, brand.currency)}</span>
-                    <span className="fcard-cta">
-                      {brand.vertical === 'restaurant' ? 'Add to order' : 'Book'}
-                      <Icon name="arrowRight" size={13} />
-                    </span>
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-
-          <div className="list">
-            {rest.map((i) => (
-              <div className="list-row" key={i.id}>
-                <span>
-                  <span className="list-name">{i.name}</span>
-                  <span className="list-note" style={{ display: 'block' }}>
-                    {i.duration ? `${i.duration} · ` : ''}
-                    {i.tags.slice(0, 2).join(' · ')}
-                  </span>
-                </span>
-                <span className="list-lead" />
-                <span className="list-price">{money(i.price, brand.currency)}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ---------- story ---------- */}
-        <section className="story">
-          <div
-            className="story-photo"
-            style={{ backgroundImage: `url(${photo(brand.images.story, 1000)})` }}
-          />
-          <div>
-            <div className="eyebrow" style={{ color: 'var(--accent)' }}>
-              {brand.story.eyebrow}
-            </div>
-            <h2>{brand.story.title}</h2>
-            <p>{brand.story.body}</p>
-            <div className="story-points">
-              {brand.story.points.map((p, i) => (
-                <div className="story-point" key={p}>
-                  <b>{String(i + 1).padStart(2, '0')}</b>
-                  {p}
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <footer className="sitefoot">
-          <span className="mark">{brand.name}</span>
-          <span className="meta">
-            {brand.address}, {brand.district} · {brand.phone}
-          </span>
-        </footer>
+        <Featured brand={brand} onAll={go(brand.nav[0])} />
+        <HomeVisit brand={brand} onVisit={go(brand.vertical === 'restaurant' ? 'Find us' : 'Visiting')} />
+        <SiteFoot brand={brand} />
       </div>
     </div>
+  );
+}
+
+
+/* ==========================================================================
+   Shared chrome
+
+   Over the hero the nav is transparent with light type; on an inner page it
+   sits on the surface with ink type. One component, one set of links.
+   ========================================================================== */
+
+function SiteNav({
+  brand,
+  nav,
+  go,
+  solid,
+}: {
+  brand: Brand;
+  nav: string | null;
+  go: (label: string | null) => (e: React.MouseEvent) => void;
+  solid: boolean;
+}) {
+  return (
+    <nav className={cx('topnav', solid && 'is-solid')}>
+      <a className="mark" href="#home" onClick={go(null)}>
+        {brand.name}
+      </a>
+      <div className="topnav-links">
+        {brand.nav.map((n) => (
+          <a
+            key={n}
+            href={`#${n.toLowerCase().replace(/\s/g, '-')}`}
+            className={cx(nav === n && 'on')}
+            onClick={go(n)}
+          >
+            {n}
+          </a>
+        ))}
+      </div>
+      <span className="topnav-tel">
+        <Icon name="phone" size={14} />
+        {brand.phone}
+      </span>
+      <button className={cx('btn btn-sm', solid ? 'btn-primary' : 'btn-light')}>
+        {brand.hero.cta}
+      </button>
+    </nav>
+  );
+}
+
+function SiteFoot({ brand }: { brand: Brand }) {
+  return (
+    <footer className="sitefoot">
+      <span className="mark">{brand.name}</span>
+      <span className="meta">
+        {brand.address}, {brand.district} · {brand.phone}
+      </span>
+    </footer>
   );
 }

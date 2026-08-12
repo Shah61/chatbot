@@ -1366,28 +1366,6 @@
   border: 2px solid var(--paper);
 }
 
-.nudge {
-  max-width: 268px;
-  padding: 13px 15px 14px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg) var(--r-lg) var(--r-xs) var(--r-lg);
-  box-shadow: var(--shadow-lg);
-  font-size: 12.5px;
-  line-height: 1.5;
-  color: var(--ink-3);
-  text-align: left;
-  animation: pop 0.5s var(--ease-out) both;
-  animation-delay: 0.3s;
-}
-.nudge b {
-  display: block;
-  font-family: var(--font-display);
-  font-size: 18px;
-  font-weight: 500;
-  color: var(--ink);
-  margin-bottom: 3px;
-}
 
 @media (max-width: 560px) {
   .dock {
@@ -1404,11 +1382,7 @@
   .launcher {
     align-self: flex-end;
   }
-  .nudge {
-    max-width: none;
-  }
-}
-
+  
 /* --- Superseded pickers ------------------------------------------------------
    The model often re-checks availability while confirming, which used to
    stack two identical grids. The older one folds to a single line: the
@@ -1430,4 +1404,64 @@
 .blk-stale b {
   font-weight: 500;
   color: var(--ink-3);
+}
+
+/* ==========================================================================
+   Polish pass — tighter rhythm, calmer chrome
+   Intercom's messenger is the reference: sparse, fast, almost no furniture.
+   ========================================================================== */
+
+.w-body {
+  gap: 12px;
+  padding: 16px 15px 14px;
+}
+
+/* Grouped messages sit closer than separate turns, the way iMessage reads. */
+.msg + .msg {
+  margin-top: -3px;
+}
+.msg + .sysline,
+.sysline + .msg {
+  margin-top: 3px;
+}
+
+.bubble {
+  padding: 9px 13px 10px;
+  line-height: 1.5;
+}
+
+/* The header lifts off the transcript once there is something behind it. */
+.w-head {
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--ink) 8%, transparent);
+}
+
+/* Composer: one clear target, no competing weight. */
+.composer {
+  padding: 9px 11px 7px;
+}
+.composer-box {
+  padding: 3px 3px 3px 13px;
+  border-radius: var(--r-xl);
+}
+.composer textarea {
+  padding: 10px 0 9px;
+}
+.send {
+  width: 36px;
+  height: 36px;
+}
+.composer-foot {
+  padding-top: 6px;
+  opacity: 0.75;
+}
+
+/* Quick replies read as the primary next step, so give them presence. */
+.qr {
+  height: 34px;
+  font-weight: 600;
+  letter-spacing: 0.005em;
+}
+
+.launcher {
+  box-shadow: var(--shadow-lg), 0 0 0 1px color-mix(in srgb, var(--accent-ink) 12%, transparent);
 }

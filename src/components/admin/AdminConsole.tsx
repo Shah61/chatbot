@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Icon, type IconName } from '../Icon';
 import { Overview } from './Overview';
 import { Inbox } from './Inbox';
@@ -6,15 +5,14 @@ import { TransactionsPage } from './TransactionsPage';
 import { CatalogPage } from './CatalogPage';
 import { KnowledgePage } from './KnowledgePage';
 import { SettingsPage } from './SettingsPage';
-import { useStore } from '../../lib/store';
+import { useStore, type AdminPage } from '../../lib/store';
 import { cx } from '../../lib/utils';
 import './admin.css';
 
-type PageId = 'overview' | 'inbox' | 'ledger' | 'catalog' | 'knowledge' | 'settings';
+type PageId = AdminPage;
 
 export function AdminConsole() {
-  const { brand } = useStore();
-  const [page, setPage] = useState<PageId>('overview');
+  const { brand, page, setPage } = useStore();
 
   const restaurant = brand.vertical === 'restaurant';
   const catalogLabel =
@@ -111,7 +109,15 @@ export function AdminConsole() {
 
         <div className="side-search">
           <Icon name="search" size={14} className="lead" />
-          <input className="field" placeholder="Search everything" />
+          <input
+            className="field"
+            placeholder="Search everything"
+            readOnly
+            onFocus={(e) => {
+              e.currentTarget.blur();
+              (window as unknown as { openPalette?: () => void }).openPalette?.();
+            }}
+          />
           <kbd>⌘K</kbd>
         </div>
 

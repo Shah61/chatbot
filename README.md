@@ -112,6 +112,50 @@ sanitiser strips anything model-shaped on the way out.
 When a catalog grows past a few hundred items, add embeddings and send only the
 relevant slice — still no training, and still ordinary JavaScript.
 
+## Pointing at the backend
+
+**Locally you need nothing.** `npm run dev` proxies `/api` to
+`http://localhost:8787` (see `vite.config.ts`), so every call is same-origin
+and there is no URL to configure. This is why there has never been a `.env`
+here.
+
+**Deployed, that proxy does not exist** — it only runs under the Vite dev
+server. A build served by Vercel would call `/api/health` on Vercel itself,
+get a 404, and quietly fall back to the scripted flow. So set one variable:
+
+```
+VITE_API_URL=https://chatbot-backend-production-f.up.railway.app
+```
+
+On Vercel: Settings → Environment Variables → add it for Production (and
+Preview), then redeploy — Vite inlines it at build time, so an existing build
+will not pick it up. A bare host without `https://` is accepted.
+
+`VITE_` is the correct prefix here: this is a public URL, not a secret. The
+OpenRouter key stays on the backend and never reaches the browser.
+
+### What the backend must do for a cross-origin frontend
+
+Same-origin locally, the `saint_sid` cookie just works. Once the frontend is on
+Vercel and the backend on Railway they are different sites, so two things are
+required or Saint will forget every visitor between turns:
+
+```python
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://your-app.vercel.app"],   # never "*" with credentials
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type"],
+)
+
+response.set_cookie("saint_sid", sid, httponly=True, secure=True, samesite="none")
+```
+
+`samesite="none"` with `secure=True` is what allows a cross-site cookie at all.
+For Vercel preview URLs, which change per deployment, use `allow_origin_regex`
+instead of a fixed list.
+
 ## Theming
 
 `src/themes.css`. Each brand supplies one `--tint`; the whole neutral ramp is

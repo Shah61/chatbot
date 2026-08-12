@@ -1612,3 +1612,112 @@ table.tbl {
   font-size: 12px;
   line-height: 1.5;
 }
+
+/* ==========================================================================
+   Saint's read — the AI layer on the Overview
+   ========================================================================== */
+
+.digest {
+  border: 1px solid var(--accent-line);
+  border-radius: var(--r-md);
+  background: linear-gradient(160deg, var(--accent-soft), var(--surface) 62%);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  animation: rise 0.55s var(--ease-out) both;
+}
+
+.digest-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 18px 14px;
+}
+.digest-mark {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-xs);
+  background: var(--accent);
+  color: var(--accent-ink);
+  flex-shrink: 0;
+  box-shadow: var(--shadow-xs);
+}
+.digest-head h2 {
+  font-family: var(--font-display);
+  font-size: 23px;
+  font-weight: 500;
+  line-height: 1.22;
+  letter-spacing: -0.012em;
+  color: var(--ink);
+  margin-top: 3px;
+  max-width: 62ch;
+}
+.digest-live {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.digest-rows {
+  border-top: 1px solid var(--accent-line);
+}
+.digest-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 11px 18px;
+  text-align: left;
+  border-bottom: 1px solid var(--line-soft);
+  transition: background 0.16s var(--ease);
+}
+.digest-row:last-child {
+  border-bottom: 0;
+}
+.digest-row:hover {
+  background: var(--surface);
+}
+.digest-ico {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.digest-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+.digest-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ink-4);
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: color 0.16s var(--ease), gap 0.2s var(--ease);
+}
+.digest-row:hover .digest-cta {
+  color: var(--accent);
+  gap: 9px;
+}
+
+/* --- Density pass: Linear-tight rows that never wrap ----------------------- */
+
+.tbl td {
+  padding: 9px 16px;
+}
+.tbl td.clip {
+  max-width: 260px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tbl .who .monogram {
+  width: 26px;
+  height: 26px;
+  font-size: 11px;
+}

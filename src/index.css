@@ -550,3 +550,10 @@ select.field {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* Nothing should ever scroll the page sideways. */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}

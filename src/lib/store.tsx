@@ -5,10 +5,15 @@ import type { Brand, BrandId, CatalogItem, FaqEntry, Scheme } from './types';
 /* A tiny store so the console and the widget share one source of truth:
    change a price in the admin and the chat quotes the new one. */
 
+export type AdminPage = 'overview' | 'inbox' | 'ledger' | 'catalog' | 'knowledge' | 'settings';
+
 interface StoreValue {
   brandId: BrandId;
   brand: Brand;
   scheme: Scheme;
+  /** Lifted out of the console so the command palette can navigate. */
+  page: AdminPage;
+  setPage: (p: AdminPage) => void;
   setBrandId: (id: BrandId) => void;
   setScheme: (s: Scheme) => void;
   updateItem: (id: string, patch: Partial<CatalogItem>) => void;
@@ -34,6 +39,7 @@ const seedFaqs = (): Faqs =>
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [brandId, setBrandIdRaw] = useState<BrandId>('lumiere');
+  const [page, setPage] = useState<AdminPage>('overview');
   const [scheme, setScheme] = useState<Scheme>(BRANDS.lumiere.scheme);
   const [catalogs, setCatalogs] = useState<Catalogs>(seedCatalogs);
   const [faqs, setFaqs] = useState<Faqs>(seedFaqs);
@@ -97,6 +103,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       brandId,
       brand,
       scheme,
+      page,
+      setPage,
       setBrandId,
       setScheme,
       updateItem,
@@ -104,7 +112,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       deleteItem,
       updateFaq,
     }),
-    [brandId, brand, scheme, setBrandId, updateItem, createItem, deleteItem, updateFaq],
+    [brandId, brand, scheme, page, setBrandId, updateItem, createItem, deleteItem, updateFaq],
   );
 
   return <Store.Provider value={value}>{children}</Store.Provider>;

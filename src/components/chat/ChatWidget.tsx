@@ -39,7 +39,8 @@ export function ChatWidget() {
   const { messages, setMessages } = live;
   const dark = scheme === 'dark';
 
-  const [open, setOpen] = useState(true);
+  /* A bubble until someone wants it — the page keeps its full width. */
+  const [open, setOpen] = useState(false);
   const [wide, setWide] = useState(false);
   const [cart, setCart] = useState<CartLine[]>([]);
   const [typing, setTyping] = useState(false);
@@ -278,7 +279,7 @@ export function ChatWidget() {
 
   return (
     <div className="dock">
-      {open ? (
+      {open && (
         <div className={cx('widget', wide && 'is-wide')} role="dialog" aria-label="Saint chat">
           <header
             className={cx('w-head', withHuman && 'is-human')}
@@ -377,7 +378,11 @@ export function ChatWidget() {
               <span className="tray-count">{count}</span>
               <span className="tray-text">
                 <b>{count === 1 ? '1 item' : `${count} items`} in your basket</b>
-                <span>{brand.vertical === 'restaurant' ? 'Kitchen is open' : 'Free over £50'}</span>
+                <span>
+                  {brand.vertical === 'restaurant'
+                    ? 'Kitchen is open'
+                    : `Free delivery over ${money(150, brand.currency)}`}
+                </span>
               </span>
               <span className="tray-total">{money(total, brand.currency)}</span>
               <button className="tray-go" onClick={() => dispatch({ id: 'checkout' })}>
@@ -397,11 +402,6 @@ export function ChatWidget() {
             footer={withHuman ? `${agent?.name} · ${brand.legal}` : `Powered by ${PRODUCT.name}`}
           />
         </div>
-      ) : (
-        <button className="nudge" onClick={() => setOpen(true)}>
-          <b>{brand.assistant.nudgeTitle}</b>
-          {brand.assistant.nudgeBody}
-        </button>
       )}
 
       <button

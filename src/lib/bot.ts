@@ -264,7 +264,7 @@ export function reply(action: Action, ctx: Ctx): Reply {
           state: same({ step: 'browse' }),
           messages: [
             bot([
-              { kind: 'text', text: 'Everything on the shelf, delivered next day.' },
+              { kind: 'text', text: 'Everything on the shelf, with same-day delivery across the Klang Valley.' },
               { kind: 'catalog', ids: itemsIn(brand, cats[0]).map((i) => i.id), mode: 'add' },
             ]),
           ],
@@ -398,7 +398,7 @@ export function reply(action: Action, ctx: Ctx): Reply {
           bot([
             {
               kind: 'text',
-              text: `${money(total, brand.currency)}, and free delivery over £50. Where is it going?`,
+              text: `${money(total, brand.currency)}, and free delivery over ${money(150, brand.currency)}. Where is it going?`,
             },
             { kind: 'contactForm', wants: 'address' },
           ]),
@@ -417,7 +417,7 @@ export function reply(action: Action, ctx: Ctx): Reply {
               kind: 'text',
               text:
                 action.value === 'delivery'
-                  ? 'Twenty-five minutes at the moment. Where are we bringing it?'
+                  ? 'About thirty minutes at the moment. Where are we bringing it?'
                   : 'Ready in about twenty minutes. Who is collecting?',
             },
             { kind: 'contactForm', wants: action.value === 'delivery' ? 'address' : 'phone' },
@@ -546,8 +546,8 @@ export function reply(action: Action, ctx: Ctx): Reply {
             draft.fulfilment === 'collection'
               ? 'Ready 20 min'
               : brand.vertical === 'salon'
-                ? 'Next day'
-                : '25 min',
+                ? 'Same day'
+                : '30 min',
           placedAt: Date.now(),
         };
         return {

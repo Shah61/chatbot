@@ -89,6 +89,10 @@ export interface Brand {
     story: string;
   };
   story: { eyebrow: string; title: string; body: string; points: string[] };
+  /** The pinned 01/04 sequence on the home page. */
+  process: { title: string; note: string }[];
+  /** Two headline numbers for the full-bleed craft section. */
+  proof: { value: string; label: string }[];
   marquee: string[];
 
   assistant: {

@@ -129,7 +129,7 @@ export function AreaChart({ data, height = 232 }: { data: number[][]; height?: n
         {labels.map((d, i) =>
           i % 3 === 0 || i === labels.length - 1 ? (
             <text key={i} x={x(i)} y={height - 6} textAnchor="middle" fontSize="10" fill="var(--ink-4)">
-              {d.getDate()} {d.toLocaleDateString('en-GB', { month: 'short' })}
+              {d.getDate()} {d.toLocaleDateString('en-MY', { month: 'short' })}
             </text>
           ) : null,
         )}
@@ -169,7 +169,7 @@ export function AreaChart({ data, height = 232 }: { data: number[][]; height?: n
           }}
         >
           <div className="tip-title">
-            {labels[hover].toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}
+            {labels[hover].toLocaleDateString('en-MY', { weekday: 'short', day: 'numeric', month: 'short' })}
           </div>
           {SERIES.map((s, k) => (
             <div className="tip-row" key={s.key}>

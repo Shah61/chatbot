@@ -36,7 +36,7 @@ interface Seed {
 const SEEDS: Record<string, Seed[]> = {
   lumiere: [
     {
-      contact: 'Theo Marchetti',
+      contact: 'Aiman Hakim',
       channel: 'web',
       status: 'open',
       intent: 'Order · delivery',
@@ -44,48 +44,48 @@ const SEEDS: Record<string, Seed[]> = {
       unread: 2,
       outcome: 'ordered',
       sentiment: 'positive',
-      value: 78,
+      value: 55.7,
       tags: ['Repeat', 'Delivery'],
       meta: [
-        { label: 'Phone', value: '+44 7700 900 118' },
-        { label: 'Address', value: '14 Chiltern St, W1U' },
-        { label: 'Orders', value: '11 this year' },
+        { label: 'Phone', value: '+60 12-884 0118' },
+        { label: 'Address', value: 'Jalan Sultan Ismail, KL' },
+        { label: 'Orders', value: '9 this year' },
         { label: 'Page', value: '/menu' },
       ],
       turns: [
-        ['user', 'is the turbot still on tonight?', 14],
-        ['bot', 'It is — last two portions, and the kitchen is holding one back for a regular. Shall I put your name on it?', 13],
-        ['user', 'yes please, plus the sourdough and a bottle of the chenin', 11],
-        ['bot', 'Turbot, sourdough and the Les Lunes Chenin — £78 all in. Delivery to Chiltern Street, twenty-five minutes.', 10],
-        ['user', 'perfect', 3],
-        ['bot', 'Order is with the pass. I will ping you when the rider leaves.', 2],
+        ['user', 'ayam gepuk sambal hijau still available?', 14],
+        ['bot', 'Yes—fresh batch just landed. Want it regular or extra pedas?', 13],
+        ['user', 'regular, plus tempeh crunch and kopi susu', 11],
+        ['bot', 'Ayam Gepuk Sambal Hijau, Tempeh Crunch and Kopi Susu—RM 37.70 before delivery. Same Jalan Sultan Ismail address?', 10],
+        ['user', 'yes, thank you', 3],
+        ['bot', 'Done. The kitchen has it and I will update you when the rider leaves.', 2],
       ],
     },
     {
-      contact: 'Bea Salcedo',
+      contact: 'Nurul Iman',
       channel: 'whatsapp',
       status: 'escalated',
-      intent: 'Allergy · nuts',
+      intent: 'Allergy · peanuts',
       at: '18 min',
       unread: 1,
       outcome: 'handed off',
       sentiment: 'negative',
       tags: ['Allergen', 'Priority'],
       meta: [
-        { label: 'Phone', value: '+44 7700 900 244' },
+        { label: 'Phone', value: '+60 17-220 0244' },
         { label: 'Booking', value: 'Fri 20:00 · 4' },
-        { label: 'Flagged', value: 'Severe nut allergy' },
+        { label: 'Flagged', value: 'Severe peanut allergy' },
         { label: 'Channel', value: 'WhatsApp' },
       ],
       turns: [
-        ['user', 'one of our party has a severe nut allergy — can the kitchen handle that on friday?', 26],
-        ['bot', 'Yes, and I want a person to confirm the detail rather than me guessing. Bringing in Odile now.', 25],
-        ['system', 'Odile Renard, restaurant manager, joined', 24],
-        ['agent', 'Bea — Odile here. The celeriac is the only nut dish and we will keep it off your section entirely. I have flagged the table.', 18],
+        ['user', 'one person has a severe peanut allergy—can the kitchen handle that on friday?', 26],
+        ['bot', 'Several dishes normally include peanuts, so I want the manager to confirm the safest options. Bringing Farah in now.', 25],
+        ['system', 'Farah Aziz, restaurant manager, joined', 24],
+        ['agent', 'Nurul—Farah here. I have flagged the table and we will prepare a separate peanut-free set with clean utensils. I will call you to confirm the details.', 18],
       ],
     },
     {
-      contact: 'Rafe Coleman',
+      contact: 'Jason Lee',
       channel: 'web',
       status: 'resolved',
       intent: 'Table · 6 people',
@@ -96,44 +96,44 @@ const SEEDS: Record<string, Seed[]> = {
       value: 0,
       tags: ['Reservation'],
       meta: [
-        { label: 'Phone', value: '+44 7700 900 371' },
+        { label: 'Phone', value: '+60 16-771 0371' },
         { label: 'Party', value: '6' },
         { label: 'Date', value: 'Sat 21:00' },
         { label: 'Device', value: 'iPhone · Safari' },
       ],
       turns: [
-        ['user', 'table for 6 on saturday, late as possible', 56],
-        ['bot', 'Six on Saturday — 21:00 is the latest I can seat you properly. Shall I hold it?', 55],
-        ['user', 'yes', 53],
-        ['bot', 'Held under Coleman, ref TBL-4820. The kitchen closes at midnight, so no rush.', 52],
+        ['user', 'table for 6 on saturday around 9pm can?', 56],
+        ['bot', 'Can—21:00 is available for six. Shall I hold it under Jason?', 55],
+        ['user', 'yes please', 53],
+        ['bot', 'Booked under Jason Lee, ref TBL-4820. We will keep the table for fifteen minutes.', 52],
       ],
     },
     {
       contact: 'Anonymous visitor',
       channel: 'instagram',
       status: 'open',
-      intent: 'Corkage',
+      intent: 'Halal status',
       at: '2 hr',
       unread: 0,
       outcome: 'answered',
       sentiment: 'neutral',
       tags: ['FAQ'],
       meta: [
-        { label: 'Handle', value: '@wine_and_wander' },
-        { label: 'Followers', value: '4.4k' },
+        { label: 'Handle', value: '@klmakanclub' },
+        { label: 'Followers', value: '8.1k' },
         { label: 'Session', value: '41 s' },
         { label: 'Channel', value: 'Instagram DM' },
       ],
       turns: [
-        ['user', 'can we bring our own bottle', 122],
-        ['bot', '£25 corkage a bottle, waived on Tuesdays, two bottles per table. Bring something good.', 121],
+        ['user', 'hi is the whole menu halal?', 122],
+        ['bot', 'Yes—100% halal ingredients, no pork or lard in the kitchen, and no alcohol is served.', 121],
       ],
     },
   ],
 
   aurelia: [
     {
-      contact: 'Priya Raghunathan',
+      contact: 'Priya Ramesh',
       channel: 'web',
       status: 'open',
       intent: 'Book · dermatology',
@@ -141,25 +141,25 @@ const SEEDS: Record<string, Seed[]> = {
       unread: 2,
       outcome: 'booked',
       sentiment: 'positive',
-      value: 180,
+      value: 320,
       tags: ['New patient', 'Dermatology'],
       meta: [
-        { label: 'Email', value: 'priya.r@fastmail.com' },
-        { label: 'Phone', value: '+44 7700 900 118' },
+        { label: 'Email', value: 'priya.r@gmail.com' },
+        { label: 'Phone', value: '+60 12-884 0118' },
         { label: 'First seen', value: '12 min ago' },
         { label: 'Page', value: '/dermatology' },
       ],
       turns: [
         ['user', 'hi, do you have anything this week for a mole check?', 12],
-        ['bot', 'We do. Mole mapping is 45 minutes at £180, and Dr Levi Hartmann has three openings before Friday.', 11],
+        ['bot', 'We do. Mole mapping is 45 minutes at RM 320, and Dr Lim Wei Jian has three openings before Friday.', 11],
         ['user', 'thursday morning would be ideal', 9],
-        ['bot', 'Thursday 09:30 or 11:00 — both with Dr Hartmann.', 8],
+        ['bot', 'Thursday 09:30 or 11:00—both with Dr Lim.', 8],
         ['user', '9:30 please', 4],
         ['bot', 'Booked. Confirmation sent with directions and parking notes. Reference APT-4192.', 2],
       ],
     },
     {
-      contact: 'Tomas Beckett',
+      contact: 'Hafiz Zulkifli',
       channel: 'whatsapp',
       status: 'escalated',
       intent: 'Billing dispute',
@@ -169,20 +169,20 @@ const SEEDS: Record<string, Seed[]> = {
       sentiment: 'negative',
       tags: ['Billing', 'Priority'],
       meta: [
-        { label: 'Phone', value: '+44 7700 900 244' },
-        { label: 'Patient since', value: 'Mar 2023' },
-        { label: 'Invoice', value: '#INV-2291' },
+        { label: 'Phone', value: '+60 17-220 0244' },
+        { label: 'Patient since', value: 'Mac 2023' },
+        { label: 'Invoice', value: '#INV-8821' },
         { label: 'Channel', value: 'WhatsApp' },
       ],
       turns: [
-        ['user', "I've been charged twice for the same appointment on the 12th.", 24],
-        ['bot', "I'm sorry — that should not happen. I can see two charges against #INV-2291. This needs a person from billing, so I am bringing one in.", 23],
-        ['system', 'Marguerite Vance, patient coordinator, joined', 22],
-        ['agent', 'Tomas, Marguerite here. Refunded the duplicate — it clears in three working days. Apologies for the trouble.', 14],
+        ['user', 'I was charged twice for the same appointment on the 12th', 24],
+        ['bot', 'I am sorry—that should not happen. I can see two charges against #INV-8821. This needs our patient coordinator, so I am bringing her in.', 23],
+        ['system', 'Siti Hajar, patient coordinator, joined', 22],
+        ['agent', 'Hafiz, Siti here. The duplicate is refunded and should clear in three working days. Maaf for the trouble.', 14],
       ],
     },
     {
-      contact: 'Hélène Dufort',
+      contact: 'Elaine Wong',
       channel: 'web',
       status: 'resolved',
       intent: 'Opening hours',
@@ -195,7 +195,7 @@ const SEEDS: Record<string, Seed[]> = {
         { label: 'Page', value: '/contact' },
         { label: 'Device', value: 'iPhone · Safari' },
         { label: 'Session', value: '1 m 12 s' },
-        { label: 'Location', value: 'London, UK' },
+        { label: 'Location', value: 'Petaling Jaya, Selangor' },
       ],
       turns: [
         ['user', 'are you open on saturdays', 40],
@@ -204,7 +204,7 @@ const SEEDS: Record<string, Seed[]> = {
       ],
     },
     {
-      contact: 'Marion Alvarez',
+      contact: 'Aina Yusuf',
       channel: 'sms',
       status: 'resolved',
       intent: 'Reschedule',
@@ -212,17 +212,17 @@ const SEEDS: Record<string, Seed[]> = {
       unread: 0,
       outcome: 'rebooked',
       sentiment: 'neutral',
-      value: 110,
+      value: 180,
       tags: ['Existing patient'],
       meta: [
-        { label: 'Phone', value: '+44 7700 900 371' },
+        { label: 'Phone', value: '+60 16-771 0371' },
         { label: 'Patient ID', value: 'AUR-00812' },
         { label: 'Visits', value: '9' },
         { label: 'No-shows', value: '0' },
       ],
       turns: [
         ['user', 'need to move tuesday, something came up', 126],
-        ['bot', 'No trouble. Your Tuesday 14:15 with Ms Sena Ellery — shall I look at Friday instead?', 125],
+        ['bot', 'No problem. Your Tuesday 14:15 with Ms Kavitha Nair—shall I look at Friday instead?', 125],
         ['user', 'friday morning yes', 122],
         ['bot', 'Moved to Friday 10:00. Your old slot is released.', 121],
       ],
@@ -231,7 +231,7 @@ const SEEDS: Record<string, Seed[]> = {
 
   solene: [
     {
-      contact: 'Amelie Fontaine',
+      contact: 'Alya Syahirah',
       channel: 'instagram',
       status: 'open',
       intent: 'Book · balayage',
@@ -239,25 +239,25 @@ const SEEDS: Record<string, Seed[]> = {
       unread: 3,
       outcome: 'booked',
       sentiment: 'positive',
-      value: 245,
+      value: 580,
       tags: ['New client', 'Colour'],
       meta: [
-        { label: 'Handle', value: '@ameliefontaine' },
-        { label: 'Phone', value: '+44 7700 900 662' },
+        { label: 'Handle', value: '@alyasyahirah' },
+        { label: 'Phone', value: '+60 12-665 0662' },
         { label: 'Patch test', value: 'Booked Tue' },
         { label: 'Channel', value: 'Instagram DM' },
       ],
       turns: [
         ['user', 'hiii how much is balayage and do you have anything next week', 20],
-        ['bot', 'From £245 with a senior colourist, toner and finish included. Malik has Wednesday at 11:00 and Friday at 14:30.', 19],
+        ['bot', 'From RM 580 with a senior colourist, toner and finish included. Marcus has Wednesday at 11:00 and Friday at 14:30.', 19],
         ['user', 'wednesday!! do i need to do anything first', 14],
         ['bot', 'A patch test 48 hours before — two minutes, and I can put you in Tuesday at 17:00 for it.', 12],
         ['user', 'yes perfect', 5],
-        ['bot', 'Both in the book. Patch test Tuesday 17:00, colour Wednesday 11:00 with Malik.', 4],
+        ['bot', 'Both in the book. Patch test Tuesday 17:00, colour Wednesday 11:00 with Marcus.', 4],
       ],
     },
     {
-      contact: 'Grace Okafor',
+      contact: 'Grace Lee',
       channel: 'web',
       status: 'open',
       intent: 'Order · retail',
@@ -265,23 +265,23 @@ const SEEDS: Record<string, Seed[]> = {
       unread: 0,
       outcome: 'ordered',
       sentiment: 'positive',
-      value: 60,
+      value: 195,
       tags: ['Retail', 'Repeat'],
       meta: [
-        { label: 'Email', value: 'g.okafor@hey.com' },
-        { label: 'Address', value: '8 Ezra Street, E2' },
+        { label: 'Email', value: 'grace.lee@gmail.com' },
+        { label: 'Address', value: 'Jalan Maarof, Bangsar' },
         { label: 'Orders', value: '4' },
         { label: 'Page', value: '/retail' },
       ],
       turns: [
         ['user', 'can i reorder the mask and the shampoo', 30],
-        ['bot', 'Repair Mask and Everyday Shampoo — £60, free delivery over £50. Same address on Ezra Street?', 29],
+        ['bot', 'Repair Mask and Everyday Shampoo—RM 195, with free Klang Valley delivery. Same Jalan Maarof address?', 29],
         ['user', 'yep', 27],
         ['bot', 'Done. It goes out tonight and lands tomorrow.', 26],
       ],
     },
     {
-      contact: 'Dana Whitlock',
+      contact: 'Dania Musa',
       channel: 'sms',
       status: 'escalated',
       intent: 'Colour correction',
@@ -291,16 +291,16 @@ const SEEDS: Record<string, Seed[]> = {
       sentiment: 'negative',
       tags: ['Correction', 'Priority'],
       meta: [
-        { label: 'Phone', value: '+44 7700 900 905' },
+        { label: 'Phone', value: '+60 19-440 0905' },
         { label: 'Last visit', value: '3 days ago' },
-        { label: 'Stylist', value: 'Elif Kaya' },
-        { label: 'Spend', value: '£1,240 lifetime' },
+        { label: 'Stylist', value: 'Mei Lin Wong' },
+        { label: 'Spend', value: 'RM 3,420 lifetime' },
       ],
       turns: [
         ['user', 'the tone has gone brassy already and I have an event on saturday', 70],
-        ['bot', 'That should not happen three days in. This needs Iris rather than me — putting you through now.', 68],
-        ['system', 'Iris Bellamy, studio manager, joined', 67],
-        ['agent', 'Dana, Iris here. Come in Thursday and Elif will re-tone it, no charge. I have held 18:00 for you.', 60],
+        ['bot', 'That should not happen three days in. This needs Nadia rather than me—putting you through now.', 68],
+        ['system', 'Nadia Farouk, studio manager, joined', 67],
+        ['agent', 'Dania, Nadia here. Come in Thursday and Mei Lin will re-tone it at no charge. I have held 18:00 for you.', 60],
       ],
     },
     {
@@ -321,7 +321,7 @@ const SEEDS: Record<string, Seed[]> = {
       ],
       turns: [
         ['user', 'do you do student prices', 182],
-        ['bot', '20% off cuts on Tuesdays and Wednesdays with a valid card — colour is excluded.', 181],
+        ['bot', 'We offer 15% off cuts Tuesday to Thursday with a valid Malaysian student card. Colour is excluded.', 181],
       ],
     },
   ],
@@ -353,16 +353,16 @@ export function conversationsFor(brand: Brand): ConversationSummary[] {
 /* --- Orders & bookings ------------------------------------------------------- */
 
 const NAMES = [
-  'Theo Marchetti',
-  'Bea Salcedo',
-  'Rafe Coleman',
-  'Ines Kowalski',
-  'George Adeyemi',
-  'Hélène Dufort',
-  'Rowan Petit',
-  'Yusuf Demir',
-  'Grace Okafor',
-  'Dana Whitlock',
+  'Aiman Hakim',
+  'Nurul Iman',
+  'Jason Lee',
+  'Kavitha Menon',
+  'Daniel Tan',
+  'Elaine Wong',
+  'Sofia Ismail',
+  'Hafiz Rahman',
+  'Grace Lee',
+  'Dania Musa',
 ];
 
 const WHEN = [
@@ -415,11 +415,12 @@ export function transactionsFor(brand: Brand): Transaction[] {
   return NAMES.slice(0, 8).map((name, i) => {
     const item = items[i % items.length];
     const second = items[(i + 3) % items.length];
+    const specialist = brand.people.find((person) => person.focus.includes(item.categoryId));
     const detail =
       brand.vertical === 'restaurant'
         ? `${item.name} · ${second.name}`
-        : brand.people.length
-          ? `${item.name} · ${brand.people[i % brand.people.length].name}`
+        : specialist
+          ? `${item.name} · ${specialist.name}`
           : item.name;
     return {
       id: `${brand.id}-t${i}`,
@@ -463,7 +464,7 @@ export function metricsFor(brand: Brand) {
   const s = series14[brand.id];
   const convos = s.reduce((n, d) => n + d[0], 0);
   const done = s.reduce((n, d) => n + d[1], 0);
-  const value = done * (brand.vertical === 'restaurant' ? 62 : brand.vertical === 'clinic' ? 148 : 118);
+  const value = done * (brand.vertical === 'restaurant' ? 42 : brand.vertical === 'clinic' ? 285 : 260);
   return {
     convos,
     done,
@@ -483,7 +484,7 @@ export function topIntentsFor(brand: Brand) {
       { label: 'Book a table', count: 302 },
       { label: 'Allergens & swaps', count: 178 },
       { label: 'Opening hours', count: 142 },
-      { label: 'Corkage & wine', count: 97 },
+      { label: 'Halal & ingredients', count: 97 },
       { label: 'Parking', count: 64 },
     ],
     aurelia: [
@@ -612,3 +613,73 @@ export function activityFor(brand: Brand) {
 }
 
 export const fmtMoney = money;
+
+/* ==========================================================================
+   Saint's read
+
+   An AI layer on top of the numbers, never instead of them: every line is
+   computed from the same data the panels below show, and each one points at
+   the page where you can check it.
+   ========================================================================== */
+
+export interface Insight {
+  icon: 'trendUp' | 'clock' | 'alert' | 'sparkle' | 'users';
+  text: string;
+  jump: 'overview' | 'inbox' | 'ledger' | 'catalog' | 'knowledge' | 'settings';
+  cta: string;
+}
+
+export function digestFor(brand: Brand): { headline: string; insights: Insight[] } {
+  const s = series14[brand.id];
+  const load = hourly[brand.id];
+  const m = metricsFor(brand);
+  const intents = topIntentsFor(brand);
+  const convos = conversationsFor(brand);
+
+  /* Share of the day's volume that lands after the desk closes. */
+  const afterHours = load.slice(19).concat(load.slice(0, 7)).reduce((n, v) => n + v, 0);
+  const allHours = load.reduce((n, v) => n + v, 0);
+  const afterPct = Math.round((afterHours / allHours) * 100);
+
+  const peak = load.indexOf(Math.max(...load));
+  const thin = brand.catalog.filter((i) => i.description.trim().length < 12).length;
+  const escalated = convos.filter((c) => c.status === 'escalated').length;
+  const topShare = Math.round((intents[0].count / intents.reduce((n, i) => n + i.count, 0)) * 100);
+  const last = s[s.length - 1];
+  const rate = Math.round((last[1] / last[0]) * 100);
+
+  const insights: Insight[] = [
+    {
+      icon: 'trendUp',
+      text: `${topShare}% of everything asked is “${intents[0].label.toLowerCase()}”, and ${rate}% of yesterday's conversations ended in money.`,
+      jump: 'ledger',
+      cta: brand.vertical === 'restaurant' ? 'See the pass' : 'See the diary',
+    },
+    {
+      icon: 'clock',
+      text: `${afterPct}% of requests arrive outside desk hours — the busiest single hour is ${String(peak).padStart(2, '0')}:00.`,
+      jump: 'settings',
+      cta: 'Out-of-hours rule',
+    },
+    thin > 0
+      ? {
+          icon: 'alert',
+          text: `${thin} ${thin === 1 ? 'entry has' : 'entries have'} no description, so Saint has nothing to quote when someone asks about ${thin === 1 ? 'it' : 'them'}.`,
+          jump: 'catalog',
+          cta: 'Write them',
+        }
+      : {
+          icon: 'users',
+          text: `${escalated} ${escalated === 1 ? 'conversation' : 'conversations'} reached ${brand.assistant.human.split(' ')[0]} this fortnight — the rest closed without staff.`,
+          jump: 'inbox',
+          cta: 'Open the inbox',
+        },
+  ];
+
+  return {
+    headline: `${nfmt(m.convos)} conversations, ${nfmt(m.done)} closed, ${m.resolution}% without anyone stepping in.`,
+    insights,
+  };
+}
+
+const nfmt = (n: number) => new Intl.NumberFormat('en-MY').format(n);

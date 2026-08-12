@@ -2,6 +2,7 @@ import { Icon, type IconName } from '../Icon';
 import { AreaChart, BarList, ChartLegend, Donut, Sparkline } from '../charts/Charts';
 import {
   activityFor,
+  digestFor,
   channelSplit,
   conversationsFor,
   metricsFor,
@@ -21,7 +22,7 @@ const STATUS_PILL: Record<string, string> = {
 };
 
 export function Overview() {
-  const { brand } = useStore();
+  const { brand, setPage } = useStore();
   const m = metricsFor(brand);
   const s = series14[brand.id];
   const convos = conversationsFor(brand);
@@ -78,8 +79,40 @@ export function Overview() {
     },
   ];
 
+  const digest = digestFor(brand);
+
   return (
     <div className="stack">
+      {/* An AI layer over the numbers, not instead of them — every line is
+          computed from the panels below, and jumps to where you can check it. */}
+      <section className="digest">
+        <div className="digest-head">
+          <span className="digest-mark">
+            <Icon name="sparkle" size={14} />
+          </span>
+          <div>
+            <div className="eyebrow">Saint’s read · last 14 days</div>
+            <h2>{digest.headline}</h2>
+          </div>
+          <span className="pill pill-neutral digest-live">
+            <span className="dot" style={{ color: 'var(--positive)' }} />
+            Live
+          </span>
+        </div>
+        <div className="digest-rows">
+          {digest.insights.map((it) => (
+            <button key={it.text} className="digest-row" onClick={() => setPage(it.jump)}>
+              <Icon name={it.icon} size={14} className="digest-ico" />
+              <span className="digest-text">{it.text}</span>
+              <span className="digest-cta">
+                {it.cta}
+                <Icon name="arrowRight" size={13} />
+              </span>
+            </button>
+          ))}
+        </div>
+      </section>
+
       <div className="grid g4 stagger">
         {tiles.map((t) => {
           const up = t.delta >= 0;
@@ -175,7 +208,7 @@ export function Overview() {
                           <b>{r.customer}</b>
                         </span>
                       </td>
-                      <td>{r.detail}</td>
+                      <td className="clip">{r.detail}</td>
                       <td className="num">{r.when}</td>
                       <td className="right num">{money(r.total, brand.currency)}</td>
                       <td className="right">

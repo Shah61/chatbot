@@ -138,13 +138,6 @@
   animation: ringPulse 1.5s ease-in-out infinite;
 }
 
-.bar-hint {
-  font-size: 11.5px;
-  color: var(--ink-3);
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
 
 .body {
   flex: 1;
@@ -156,10 +149,7 @@
 }
 
 @media (max-width: 1120px) {
-  .bar-hint {
-    display: none;
-  }
-  .brand-btn-text span {
+    .brand-btn-text span {
     display: none;
   }
 }
@@ -176,5 +166,42 @@
   }
   .brand-btn-text {
     display: none;
+  }
+}
+
+/* --- Narrow screens ----------------------------------------------------------
+   The demo chrome was the only thing forcing a horizontal scrollbar on a
+   phone: the brand switcher and both toggles refused to shrink. */
+
+@media (max-width: 700px) {
+  .bar {
+    gap: 8px;
+    padding: 0 8px;
+    height: 50px;
+  }
+  .bar-brand {
+    padding-right: 2px;
+  }
+  .bar-brand b {
+    display: none;
+  }
+  .brands {
+    padding: 2px;
+    gap: 2px;
+  }
+  .brand-btn {
+    padding: 0 3px;
+  }
+  .views button {
+    padding: 0 9px;
+    gap: 0;
+  }
+  /* Icon-only tabs — the icons already say storefront vs console. */
+  .views button span,
+  .views button {
+    font-size: 0;
+  }
+  .views button svg {
+    font-size: 0;
   }
 }

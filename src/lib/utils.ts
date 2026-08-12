@@ -8,13 +8,13 @@ export const uid = (p = 'm') => `${p}-${Date.now().toString(36)}-${seq++}`;
 
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-export const nf = new Intl.NumberFormat('en-MY');
+export const nf = new Intl.NumberFormat('en-GB');
 
-export const money = (n: number, currency = 'RM ') =>
+export const money = (n: number, currency = '£') =>
   `${currency}${Number.isInteger(n) ? nf.format(n) : n.toFixed(2)}`;
 
 export const clockTime = (at: number) =>
-  new Date(at).toLocaleTimeString('en-MY', { hour: '2-digit', minute: '2-digit' });
+  new Date(at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 
 export const initialsOf = (name: string) =>
   name
@@ -42,15 +42,15 @@ export function nextDays(count: number, closedOn: number[] = []): Date[] {
   return out;
 }
 
-export const dayShort = (d: Date) => d.toLocaleDateString('en-MY', { weekday: 'short' });
-export const monthShort = (d: Date) => d.toLocaleDateString('en-MY', { month: 'short' });
+export const dayShort = (d: Date) => d.toLocaleDateString('en-GB', { weekday: 'short' });
+export const monthShort = (d: Date) => d.toLocaleDateString('en-GB', { month: 'short' });
 
 export function prettyDate(isoDate: string) {
   const today = iso(new Date());
   const tomorrow = iso(new Date(Date.now() + 864e5));
   if (isoDate === today) return 'Today';
   if (isoDate === tomorrow) return 'Tomorrow';
-  return new Date(isoDate + 'T00:00:00').toLocaleDateString('en-MY', {
+  return new Date(isoDate + 'T00:00:00').toLocaleDateString('en-GB', {
     weekday: 'long',
     day: 'numeric',
     month: 'long',

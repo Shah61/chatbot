@@ -10,7 +10,7 @@ import {
   routeFor,
   type Route,
 } from './pages';
-import { Featured, HomeJourney, HomeStory, HomeVisit } from './sections';
+import { Craft, Featured, Philosophy, Process } from './sections';
 import { useStore } from '../../lib/store';
 import type { Brand } from '../../lib/types';
 import { cx } from '../../lib/utils';
@@ -18,9 +18,7 @@ import './site.css';
 
 /** Swap this helper for your own CDN and the whole site re-points. */
 export const photo = (id: string, w = 1600) =>
-  id.startsWith('photo-')
-    ? `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=80`
-    : `https://unsplash.com/photos/${id}/download?force=true&w=${w}`;
+  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=80`;
 
 const CTA_SECOND: Record<Brand['vertical'], string> = {
   restaurant: 'Book a table',
@@ -52,10 +50,7 @@ export function Site() {
   const dark = scheme === 'dark';
 
   /* A different business is a different site — go back to its front page. */
-  useEffect(() => {
-    setNav(null);
-    document.querySelector('.body')?.scrollTo({ top: 0 });
-  }, [brand.id]);
+  useEffect(() => setNav(null), [brand.id]);
 
   const route: Route = nav ? routeFor(brand, nav) : { kind: 'home' };
   const go = (label: string | null) => (e: React.MouseEvent) => {
@@ -64,14 +59,6 @@ export function Site() {
     document.querySelector('.body')?.scrollTo({ top: 0 });
   };
   const today = openToday(brand);
-  const heroItems = brand.vertical === 'salon'
-    ? brand.catalog.filter((item) => item.categoryId !== 'retail')
-    : brand.catalog;
-  const signatureCategory =
-    brand.vertical === 'restaurant' ? 'geprek' : brand.vertical === 'clinic' ? 'general' : 'cut';
-  const signature = [...heroItems]
-    .filter((item) => item.categoryId === signatureCategory)
-    .sort((a, b) => b.sold - a.sold)[0];
 
 
   if (route.kind !== 'home') {
@@ -132,8 +119,8 @@ export function Site() {
         <div className="hero-note">
           <div className="hero-note-box" />
           <div className="hero-note-tag">
-            <span>Signature</span>
-            <b>{signature?.name.split(',')[0]}</b>
+            <span>{brand.categories[0]?.name}</span>
+            <b>{[...brand.catalog].sort((a, b) => b.sold - a.sold)[0]?.name.split(',')[0]}</b>
           </div>
         </div>
 
@@ -176,12 +163,12 @@ export function Site() {
         </div>
       </div>
 
-      <HomeStory brand={brand} />
-      <HomeJourney brand={brand} />
+      <Philosophy brand={brand} />
+      <Craft brand={brand} />
+      <Process brand={brand} />
 
       <div className="shell">
         <Featured brand={brand} onAll={go(brand.nav[0])} />
-        <HomeVisit brand={brand} onVisit={go(brand.vertical === 'restaurant' ? 'Find us' : 'Visiting')} />
         <SiteFoot brand={brand} />
       </div>
     </div>

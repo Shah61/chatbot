@@ -11,8 +11,8 @@ const PILL: Record<string, string> = {
 const GAPS: Record<string, { q: string; asked: number }[]> = {
   lumiere: [
     { q: 'Do you have high chairs?', asked: 41 },
-    { q: 'Can you make the sambal less spicy?', asked: 22 },
-    { q: 'Do you cater for office lunches?', asked: 14 },
+    { q: 'Can I order the wine list for delivery only?', asked: 22 },
+    { q: 'Is the tasting menu available on Sundays?', asked: 14 },
   ],
   aurelia: [
     { q: 'Do you offer virtual consultations?', asked: 34 },

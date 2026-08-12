@@ -223,7 +223,7 @@ export function BlockView(p: BlockProps) {
         <div className="blk ful-row">
           {(
             [
-              { id: 'delivery', icon: 'truck', name: 'Delivery', note: '30 min · RM 5' },
+              { id: 'delivery', icon: 'truck', name: 'Delivery', note: '25 min · £3.50' },
               { id: 'collection', icon: 'bag', name: 'Collection', note: 'Ready in 20 min' },
             ] as const
           ).map((f) => {
@@ -661,7 +661,7 @@ function ContactForm({
           <input
             id="s-name"
             className="field"
-            placeholder="Aiman Hakim"
+            placeholder="Alex Whitfield"
             value={name}
             disabled={!live}
             onChange={(e) => setName(e.target.value)}
@@ -674,7 +674,7 @@ function ContactForm({
           <input
             id="s-contact"
             className="field"
-            placeholder={wants === 'address' ? '18 Jalan Telawi, Bangsar' : '012-345 6789'}
+            placeholder={wants === 'address' ? '14 Chiltern Street, W1U' : '07700 900118'}
             value={contact}
             disabled={!live}
             onChange={(e) => setContact(e.target.value)}

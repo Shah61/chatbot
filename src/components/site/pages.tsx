@@ -9,7 +9,7 @@ import { money } from '../../lib/utils';
    Everything here is rendered from the same brand data the backend sends to
    the model as context — the catalog, the people, the hours, the published
    answers. Nothing is written twice, so the site and the assistant cannot
-   drift: if a page says RM 320, that is because the catalog says RM 320, and the
+   drift: if a page says £180, that is because the catalog says £180, and the
    model is reading the same row.
    ========================================================================== */
 

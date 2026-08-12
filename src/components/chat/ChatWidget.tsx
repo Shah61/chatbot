@@ -378,11 +378,7 @@ export function ChatWidget() {
               <span className="tray-count">{count}</span>
               <span className="tray-text">
                 <b>{count === 1 ? '1 item' : `${count} items`} in your basket</b>
-                <span>
-                  {brand.vertical === 'restaurant'
-                    ? 'Kitchen is open'
-                    : `Free delivery over ${money(150, brand.currency)}`}
-                </span>
+                <span>{brand.vertical === 'restaurant' ? 'Kitchen is open' : 'Free over £50'}</span>
               </span>
               <span className="tray-total">{money(total, brand.currency)}</span>
               <button className="tray-go" onClick={() => dispatch({ id: 'checkout' })}>

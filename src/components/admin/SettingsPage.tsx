@@ -152,7 +152,7 @@ export function SettingsPage() {
                 <b>{c.name}</b>
                 <span className="meta">
                   {c.id === 'web'
-                    ? `${brand.id}.com.my`
+                    ? `${brand.name.toLowerCase()}.co.uk`
                     : c.id === 'whatsapp'
                       ? brand.phone
                       : c.id === 'instagram'

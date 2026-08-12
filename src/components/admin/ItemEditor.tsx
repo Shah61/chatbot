@@ -57,7 +57,7 @@ export function ItemEditor({ item, onClose }: { item: CatalogItem; onClose: () =
     }
   };
 
-  const applyVariant = async (text: string) => {
+  const useVariant = async (text: string) => {
     set({ description: '' });
     await typeOut(text, (partial) => set({ description: partial }));
   };
@@ -68,7 +68,7 @@ export function ItemEditor({ item, onClose }: { item: CatalogItem; onClose: () =
     setProblem(null);
     try {
       const next = await refine(draft.description, how, draft, brand);
-      await applyVariant(next);
+      await useVariant(next);
     } catch (err) {
       setProblem(err instanceof Error ? err.message : 'Could not rewrite that.');
     } finally {
@@ -288,7 +288,7 @@ export function ItemEditor({ item, onClose }: { item: CatalogItem; onClose: () =
             {variants.length > 0 && (
               <div className="variants">
                 {variants.map((v, i) => (
-                  <button className="variant" key={i} onClick={() => applyVariant(v)}>
+                  <button className="variant" key={i} onClick={() => useVariant(v)}>
                     <span className="variant-tag">
                       <span className="pill pill-accent">Option {i + 1}</span>
                       <span className="variant-use">Use this →</span>

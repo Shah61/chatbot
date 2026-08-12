@@ -159,8 +159,12 @@ const bookCategories = (brand: Brand) =>
 const itemsIn = (brand: Brand, categoryId: string) =>
   brand.catalog.filter((i) => i.categoryId === categoryId && i.available);
 
-const peopleFor = (brand: Brand, categoryId?: string) =>
-  categoryId ? brand.people.filter((p) => p.focus.includes(categoryId)) : brand.people;
+/* Anyone taken off the rota in the console drops out of here too, so the
+   assistant stops offering slots it cannot honour. */
+const peopleFor = (brand: Brand, categoryId?: string) => {
+  const on = brand.people.filter((p) => p.available !== false);
+  return categoryId ? on.filter((p) => p.focus.includes(categoryId)) : on;
+};
 
 export const cartTotal = (lines: CartLine[], brand: Brand) =>
   lines.reduce(

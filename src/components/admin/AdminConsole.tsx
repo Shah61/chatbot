@@ -3,6 +3,7 @@ import { Overview } from './Overview';
 import { Inbox } from './Inbox';
 import { TransactionsPage } from './TransactionsPage';
 import { CatalogPage } from './CatalogPage';
+import { RotaPage } from './RotaPage';
 import { KnowledgePage } from './KnowledgePage';
 import { SettingsPage } from './SettingsPage';
 import { useStore, type AdminPage } from '../../lib/store';
@@ -70,6 +71,20 @@ export function AdminConsole() {
       sub: `Prices, descriptions and what Saint is allowed to sell.`,
       mark: catalogLabel,
     },
+    /* Only the verticals that sell time with a named person have a rota. */
+    ...(brand.people.length
+      ? [
+          {
+            id: 'rota' as PageId,
+            label: 'Availability',
+            icon: 'users' as IconName,
+            group: 'Assistant',
+            title: 'Availability',
+            sub: `Who is on today, and who covers them when they are not.`,
+            mark: 'Rota',
+          },
+        ]
+      : []),
     {
       id: 'knowledge',
       label: 'Knowledge',
@@ -90,7 +105,9 @@ export function AdminConsole() {
     },
   ];
 
-  const current = PAGES.find((p) => p.id === page)!;
+  /* Switching to a brand without a rota while sitting on it would leave the
+     header with nothing to describe. */
+  const current = PAGES.find((p) => p.id === page) ?? PAGES[0];
   const groups = [...new Set(PAGES.map((p) => p.group))];
 
   return (
@@ -183,6 +200,7 @@ export function AdminConsole() {
           {page === 'inbox' && <Inbox />}
           {page === 'ledger' && <TransactionsPage />}
           {page === 'catalog' && <CatalogPage />}
+          {page === 'rota' && brand.people.length > 0 && <RotaPage />}
           {page === 'knowledge' && <KnowledgePage />}
           {page === 'settings' && <SettingsPage />}
         </div>

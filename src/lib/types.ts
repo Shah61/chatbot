@@ -32,6 +32,17 @@ export interface CatalogItem {
   sold: number;
 }
 
+/** Why someone is off the rota. Drives the wording Saint uses. */
+export type AwayReason = 'mc' | 'leave' | 'training' | 'conference';
+
+export interface Away {
+  reason: AwayReason;
+  /** Free text, e.g. 'Fri 15 Aug' — the diary owns real dates. */
+  until: string;
+  /** Who picks up their list. Absent means the slots simply close. */
+  coverId?: string;
+}
+
 export interface Person {
   id: string;
   name: string;
@@ -44,6 +55,9 @@ export interface Person {
   next: string;
   hue: number;
   bio: string;
+  /** Rota state, owned by the console. Undefined counts as on. */
+  available?: boolean;
+  away?: Away;
 }
 
 export interface FaqEntry {

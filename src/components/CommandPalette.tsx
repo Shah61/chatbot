@@ -79,6 +79,19 @@ export function CommandPalette({
         run: go('ledger'),
       },
       { id: 'n-cat', label: catalogLabel, group: 'Go to', icon: 'layers', keywords: 'catalog prices items', run: go('catalog') },
+      ...(brand.people.length
+        ? [
+            {
+              id: 'n-rota',
+              label: 'Availability',
+              hint: `Who is on, and who covers them`,
+              group: 'Go to',
+              icon: 'users' as const,
+              keywords: 'rota roster mc sick leave cover doctor stylist away holiday',
+              run: go('rota'),
+            },
+          ]
+        : []),
       { id: 'n-kb', label: 'Knowledge', group: 'Go to', icon: 'book', keywords: 'answers faq', run: go('knowledge') },
       { id: 'n-set', label: 'Settings', group: 'Go to', icon: 'settings', keywords: 'voice channels handover', run: go('settings') },
       {

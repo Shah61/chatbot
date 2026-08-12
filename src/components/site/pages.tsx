@@ -239,23 +239,33 @@ export function ShopView({ brand, only, dark }: { brand: Brand; only: string; da
 /* --- People ------------------------------------------------------------------ */
 
 export function PeopleView({ brand, dark }: { brand: Brand; dark: boolean }) {
+  /* The rota decides who the site lists — take someone off in the console and
+     they come off the page as well. */
+  const team = brand.people.filter((p) => p.available !== false);
+
   if (!brand.people.length) {
     return <p className="meta">No named staff — bookings sit against the business.</p>;
   }
   return (
     <div className="team-grid">
-      {brand.people.map((p) => (
+      {team.map((p) => (
         <article className="team-card" key={p.id}>
           <Motif hue={p.hue} seed={p.id + p.name} size={72} dark={dark} />
           <h3>{`${p.title} ${p.name}`.trim()}</h3>
           <div className="team-role">{p.role}</div>
           <p>{p.bio}</p>
           <div className="team-foot">
-            <span className="team-rate">
-              <Icon name="star" size={12} strokeWidth={1.8} />
-              {p.rating.toFixed(1)}
-              <span>({p.reviews})</span>
-            </span>
+            {/* Somebody who joined the rota this morning has no score, and a
+                bold 0.0 would read as a bad one. */}
+            {p.reviews > 0 ? (
+              <span className="team-rate">
+                <Icon name="star" size={12} strokeWidth={1.8} />
+                {p.rating.toFixed(1)}
+                <span>({p.reviews})</span>
+              </span>
+            ) : (
+              <span className="team-rate is-new">New</span>
+            )}
             <span className="team-next">
               <Icon name="clock" size={12} />
               {p.next}

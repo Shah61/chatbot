@@ -1721,3 +1721,419 @@ table.tbl {
   height: 26px;
   font-size: 11px;
 }
+
+/* ==========================================================================
+   Availability — the rota
+   Rows read top to bottom: who, what changed, and only then the controls to
+   change it again. The consequence line under an absent name is the point of
+   the page, so it is styled as content rather than as a hint.
+   ========================================================================== */
+
+.stat.is-warning::before {
+  background: var(--warning);
+}
+
+.rota {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.rota-row {
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  overflow: hidden;
+  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease),
+    background 0.2s var(--ease);
+}
+.rota-row:hover {
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-xs);
+}
+.rota-row.is-off {
+  background: var(--surface-2);
+}
+
+.rota-main {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 13px 14px;
+}
+/* Faded, not hidden — you still need to read the name to put them back on. */
+.rota-row.is-off .rota-main svg[aria-hidden] {
+  opacity: 0.55;
+  filter: saturate(0.5);
+}
+
+.rota-who {
+  min-width: 0;
+  flex: 1;
+}
+.rota-name {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.25;
+}
+.rota-name .pill .dot {
+  width: 5px;
+  height: 5px;
+}
+.rota-role {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.rota-role i {
+  width: 3px;
+  height: 3px;
+  border-radius: 99px;
+  background: var(--ink-4);
+  flex-shrink: 0;
+}
+.rota-role span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.rota-acts {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.rota-effect {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 11px 14px;
+  border-top: 1px solid var(--line-soft);
+  background: var(--surface);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+.rota-effect svg {
+  margin-top: 2px;
+  color: var(--accent);
+}
+.rota-effect b {
+  font-weight: 600;
+  color: var(--ink);
+}
+.rota-effect.is-open {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+.rota-effect.is-open svg {
+  color: var(--warning);
+}
+
+/* --- Marking someone off ------------------------------------------------------ */
+
+.away {
+  padding: 15px 14px 14px;
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+  animation: rise 0.3s var(--ease-out) both;
+}
+.away-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 150px;
+  gap: 14px;
+  align-items: start;
+}
+
+.seg {
+  display: flex;
+  gap: 3px;
+  padding: 3px;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+.seg-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: calc(var(--r-sm) - 2px);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-3);
+  white-space: nowrap;
+  transition: background 0.18s var(--ease), color 0.18s var(--ease),
+    box-shadow 0.18s var(--ease);
+}
+.seg-btn:hover {
+  color: var(--ink);
+}
+.seg-btn.on {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-xs);
+}
+
+.away-cover {
+  margin-top: 15px;
+}
+.away-picks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 7px;
+}
+.pick {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 11px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  text-align: left;
+  transition: border-color 0.18s var(--ease), background 0.18s var(--ease);
+}
+.pick:hover {
+  border-color: var(--line-strong);
+}
+.pick.on {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.pick-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 99px;
+  border: 1px solid var(--line-strong);
+  color: transparent;
+  flex-shrink: 0;
+  transition: background 0.18s var(--ease), border-color 0.18s var(--ease),
+    color 0.18s var(--ease);
+}
+.pick.on .pick-mark {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+.pick-text {
+  min-width: 0;
+}
+.pick-text b {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.3;
+}
+.pick-text span {
+  display: block;
+  font-size: 11px;
+  color: var(--ink-3);
+  margin-top: 1px;
+}
+.away-empty {
+  grid-column: 1 / -1;
+  margin: 2px 0 0;
+}
+.away-foot {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+/* --- Cover by service --------------------------------------------------------- */
+
+.cover-list {
+  display: flex;
+  flex-direction: column;
+}
+.cover-row {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+.cover-row:last-child {
+  border-bottom: 0;
+}
+.cover-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+.cover-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.cover-count {
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-3);
+}
+.cover-count.is-down {
+  color: var(--warning);
+  font-weight: 600;
+}
+
+/* One tick per person who can deliver the service, lit while they are on. */
+.cover-bar {
+  display: flex;
+  gap: 3px;
+  margin: 8px 0 7px;
+}
+.cover-tick {
+  height: 4px;
+  flex: 1;
+  border-radius: 99px;
+  background: var(--surface-3);
+  transition: background 0.3s var(--ease);
+}
+.cover-tick.on {
+  background: var(--accent);
+}
+.cover-row.is-down .cover-tick {
+  background: var(--warning-soft);
+}
+
+.cover-who {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--ink-3);
+}
+.cover-row.is-down .cover-who {
+  color: var(--warning);
+}
+
+.cover-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin-top: 14px;
+  padding: 11px 12px;
+  border-radius: var(--r-sm);
+  background: var(--positive-soft);
+  color: var(--positive);
+  font-size: 12px;
+  line-height: 1.55;
+}
+.cover-note svg {
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+.cover-note.is-warning {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+@media (max-width: 1180px) {
+  .away-grid {
+    grid-template-columns: 1fr;
+  }
+  .seg {
+    flex-wrap: wrap;
+  }
+}
+
+/* --- Bringing somebody new onto the rota --------------------------------------- */
+
+.pick.is-add {
+  border-style: dashed;
+  border-color: var(--line-strong);
+  background: transparent;
+}
+.pick.is-add:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.pick.is-add .pick-mark {
+  border-style: dashed;
+  color: var(--ink-3);
+}
+.pick.is-add:hover .pick-mark {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.newp {
+  margin-top: 10px;
+  padding: 14px;
+  border: 1px solid var(--accent);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  animation: rise 0.28s var(--ease-out) both;
+}
+.newp-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  padding-bottom: 12px;
+  margin-bottom: 13px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.newp-head svg {
+  color: var(--accent);
+}
+.newp-head b {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.newp-head .meta {
+  flex: 1;
+  min-width: 200px;
+}
+
+.newp-fields {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+}
+.newp-title .field {
+  text-align: center;
+}
+
+.newp-focus {
+  margin-top: 13px;
+}
+.newp-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.newp-chips .chip {
+  gap: 5px;
+  display: inline-flex;
+  align-items: center;
+  border-color: var(--line);
+}
+
+.newp-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 15px;
+}
+
+@media (max-width: 1180px) {
+  .newp-fields {
+    grid-template-columns: 72px minmax(0, 1fr);
+  }
+}

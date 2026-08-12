@@ -864,6 +864,13 @@
   color: var(--ink-4);
   font-weight: 400;
 }
+.team-rate.is-new {
+  color: var(--ink-3);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 10.5px;
+}
 .team-next {
   display: inline-flex;
   align-items: center;

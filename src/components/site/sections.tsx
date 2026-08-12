@@ -20,43 +20,74 @@ const photo = (id: string, w = 1600) =>
 export function Philosophy({ brand }: { brand: Brand }) {
   const [ref, p] = useProgress<HTMLElement>();
 
-  /* Each photograph travels at its own rate, and two of them cross in front
-     of the type while one stays behind it. */
-  const drift = (from: number, to: number) => map(p, 0.05, 0.85, from, to);
+  /* The panel is exactly two viewports tall, so it is pinned for p 0.33 → 0.67
+     and every reveal has to happen inside that third. Order of arrival is the
+     whole point: eyebrow, then headline, then the photographs riding up the
+     outer margins — never across the type — and finally the three points, all
+     landed by 0.61 so there is a beat to read them before the panel leaves. */
+  const drift = (from: number, to: number) => map(p, 0.34, 0.66, from, to);
+
+  const words = brand.story.title.split(' ');
+  const figures = [
+    { cls: 'is-a', id: brand.images.feature[0], x: drift(-14, 6), y: drift(150, -22), at: 0.38 },
+    { cls: 'is-b', id: brand.images.feature[1], x: drift(10, -6), y: drift(190, -34), at: 0.41 },
+    { cls: 'is-c', id: brand.images.feature[2], x: drift(16, -8), y: drift(230, -46), at: 0.44 },
+  ];
 
   return (
     <section className="phil" ref={ref}>
-      <div className="phil-inner">
-        <div className="eyebrow phil-eyebrow">{brand.story.eyebrow}</div>
-        <h2 className="phil-h">
-          {brand.story.title.split(' ').slice(0, 4).join(' ')}{' '}
-          <em>{brand.story.title.split(' ').slice(4).join(' ')}</em>
-        </h2>
+      <div className="phil-panel">
+        <div className="phil-inner">
+          {figures.map((f) => (
+            <figure
+              key={f.cls}
+              className={cx('phil-img', f.cls)}
+              aria-hidden="true"
+              style={{
+                backgroundImage: `url(${photo(f.id, 700)})`,
+                transform: `translate3d(${f.x}px, ${f.y}px, 0)`,
+                opacity: map(p, f.at, f.at + 0.09, 0, 1),
+              }}
+            />
+          ))}
 
-        <figure
-          className="phil-img is-a"
-          style={{
-            backgroundImage: `url(${photo(brand.images.feature[0], 700)})`,
-            transform: `translate3d(${drift(-120, 30)}px, ${drift(70, -60)}px, 0)`,
-            opacity: map(p, 0.05, 0.3, 0, 1),
-          }}
-        />
-        <figure
-          className="phil-img is-b"
-          style={{
-            backgroundImage: `url(${photo(brand.images.feature[1], 700)})`,
-            transform: `translate3d(${drift(140, -30)}px, ${drift(90, -40)}px, 0)`,
-            opacity: map(p, 0.12, 0.38, 0, 1),
-          }}
-        />
-        <figure
-          className="phil-img is-c"
-          style={{
-            backgroundImage: `url(${photo(brand.images.feature[2], 700)})`,
-            transform: `translate3d(-50%, ${drift(160, -30)}px, 0)`,
-            opacity: map(p, 0.2, 0.46, 0, 1),
-          }}
-        />
+          <div className="phil-type">
+            <div className="eyebrow phil-eyebrow" style={{ opacity: map(p, 0.34, 0.39, 0, 1) }}>
+              {brand.story.eyebrow}
+            </div>
+            <h2
+              className="phil-h"
+              style={{
+                opacity: map(p, 0.345, 0.44, 0, 1),
+                transform: `translate3d(0, ${map(p, 0.345, 0.46, 44, 0)}px, 0)`,
+              }}
+            >
+              {words.slice(0, 4).join(' ')} <em>{words.slice(4).join(' ')}</em>
+            </h2>
+          </div>
+
+          <div className="phil-rail">
+            <span
+              className="phil-rule"
+              style={{ transform: `scaleX(${map(p, 0.47, 0.57, 0, 1)})` }}
+            />
+            <div className="phil-points">
+              {brand.story.points.map((point, i) => (
+                <div
+                  className="phil-point"
+                  key={point}
+                  style={{
+                    opacity: map(p, 0.5 + i * 0.02, 0.57 + i * 0.02, 0, 1),
+                    transform: `translate3d(0, ${map(p, 0.5 + i * 0.02, 0.59 + i * 0.02, 14, 0)}px, 0)`,
+                  }}
+                >
+                  <b>{String(i + 1).padStart(2, '0')}</b>
+                  <span>{point}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -86,6 +117,7 @@ export function Craft({ brand }: { brand: Brand }) {
           height: `${tall}%`,
           borderRadius: `${radius}px`,
           backgroundImage: `url(${photo(brand.images.story, 1800)})`,
+          opacity: map(p, 0.28, 0.42, 0, 1),
         }}
       >
         {/* Scrim rides with the photograph, so nothing outside it darkens. */}
@@ -93,7 +125,13 @@ export function Craft({ brand }: { brand: Brand }) {
       </div>
 
       <div className="craft-copy">
-        <h2>{brand.story.title.split(',')[0]}</h2>
+        <h2>
+          {brand.vertical === 'restaurant'
+            ? 'Fire over fuss'
+            : brand.vertical === 'clinic'
+              ? 'Clarity over haste'
+              : 'Craft over volume'}
+        </h2>
         <p style={{ opacity: map(p, 0.3, 0.5, 0, 1) }}>{brand.story.body}</p>
       </div>
 

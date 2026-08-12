@@ -11,6 +11,9 @@ export function Motif({
   round = true,
   dark = false,
   className,
+  /* Corner radius in viewBox units, so it scales with the mark. Card-sized
+     renders want 0 and let the card do the clipping. */
+  radius = 14,
 }: {
   hue: number;
   seed: string;
@@ -18,6 +21,7 @@ export function Motif({
   round?: boolean;
   dark?: boolean;
   className?: string;
+  radius?: number;
 }) {
   const h = hash(seed);
   const rot = h % 360;
@@ -52,9 +56,12 @@ export function Motif({
       width={size}
       height={size}
       viewBox="0 0 100 100"
+      /* Fills rather than letterboxes, so a mark can be stretched across a
+         card's art panel without white bars down either side. */
+      preserveAspectRatio="xMidYMid slice"
       className={className}
       aria-hidden="true"
-      style={{ borderRadius: round ? '50%' : 'calc(var(--r-sm))', display: 'block' }}
+      style={{ borderRadius: round ? '50%' : radius ? 'var(--r-sm)' : 0, display: 'block' }}
     >
       <defs>
         <linearGradient id={`${id}-bg`} x1="0" y1="0" x2="0.4" y2="1">
@@ -66,7 +73,7 @@ export function Motif({
           <stop offset="100%" stopColor="transparent" />
         </radialGradient>
         <clipPath id={`${id}-cl`}>
-          {round ? <circle cx="50" cy="50" r="50" /> : <rect width="100" height="100" rx="14" />}
+          {round ? <circle cx="50" cy="50" r="50" /> : <rect width="100" height="100" rx={radius} />}
         </clipPath>
       </defs>
 
@@ -83,7 +90,16 @@ export function Motif({
       {round ? (
         <circle cx="50" cy="50" r="49.4" fill="none" stroke={c.ring} strokeWidth="1.2" />
       ) : (
-        <rect x="0.6" y="0.6" width="98.8" height="98.8" rx="13.6" fill="none" stroke={c.ring} strokeWidth="1.2" />
+        <rect
+          x="0.6"
+          y="0.6"
+          width="98.8"
+          height="98.8"
+          rx={Math.max(0, radius - 0.4)}
+          fill="none"
+          stroke={c.ring}
+          strokeWidth="1.2"
+        />
       )}
     </svg>
   );

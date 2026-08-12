@@ -8,7 +8,6 @@ import { BRANDS, BRAND_ORDER, PRODUCT } from './lib/brands';
 import { LiveProvider, useLive } from './lib/live';
 import { StoreProvider, useStore } from './lib/store';
 import { cx } from './lib/utils';
-import './app.css';
 
 export default function App() {
   return (

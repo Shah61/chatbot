@@ -24,9 +24,9 @@ re-points the copy, swaps the imagery, and changes what the assistant can *do*:
 
 | Brand | Vertical | Skills |
 | --- | --- | --- |
-| Lumière | Restaurant | Order for delivery/collection · book a table · FAQ |
-| Aurelia | Clinic | Book an appointment · reschedule · FAQ · triage handoff |
-| Solène | Salon | Book a chair · shop products · FAQ |
+| Seroja | Restaurant | Order for delivery/collection · book a table · FAQ |
+| Teduh | Clinic | Book an appointment · reschedule · FAQ · triage handoff |
+| Rona | Salon | Book a chair · shop products · FAQ |
 
 ## The chat widget
 

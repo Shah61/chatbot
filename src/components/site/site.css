@@ -106,6 +106,18 @@
   isolation: isolate;
 }
 
+/* The opening pair behaves as one scene: the hero stays pinned underneath
+   while the editorial philosophy panel rises over it. */
+.intro-stack {
+  position: relative;
+  isolation: isolate;
+}
+.intro-stack > .hero {
+  position: sticky;
+  top: 0;
+  z-index: 0;
+}
+
 .hero-photo {
   position: absolute;
   inset: -3%;
@@ -627,6 +639,22 @@
   .section-link {
     margin-left: 0;
   }
+  /* No width left for a dotted leader between a day range and its times —
+     drop it and let the time wrap under when it has to. */
+  .hours-row {
+    flex-wrap: wrap;
+    gap: 4px 10px;
+  }
+  .hours-row i {
+    display: none;
+  }
+  .hours-row b {
+    margin-left: auto;
+  }
+  .visit-hero-inner {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
 }
 
 /* ==========================================================================
@@ -850,7 +878,184 @@
   margin-top: 11px;
 }
 
+/* --- Shop ----------------------------------------------------------------------- */
+
+.shop {
+  padding-bottom: 24px;
+}
+/* auto-fit, so a three-product range fills the row instead of leaving a
+   phantom fourth column open on the right. */
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 278px), 1fr));
+  gap: 22px;
+}
+.shop-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: transform 0.24s var(--ease), box-shadow 0.24s var(--ease),
+    border-color 0.24s var(--ease);
+}
+.shop-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-md);
+}
+/* Shallower than the home page's photo cards — a generated mark has less to
+   look at than a photograph, so it gets less room. */
+.shop-art {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-bottom: 1px solid var(--line-soft);
+}
+.shop-art svg {
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s var(--ease);
+}
+.shop-card:hover .shop-art svg {
+  transform: scale(1.05);
+}
+.shop-flag {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.9);
+  color: #2a2621;
+  backdrop-filter: blur(6px);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.shop-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 18px 18px 16px;
+}
+.shop-body h3 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.014em;
+  color: var(--ink);
+}
+.shop-body p {
+  margin-top: 7px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-3);
+}
+.shop-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 12px;
+}
+/* Pushes the price line to the bottom so cards of different lengths align. */
+.shop-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 15px;
+}
+.shop-price {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.shop-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 13px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink-2);
+  transition: background 0.2s var(--ease), color 0.2s var(--ease),
+    border-color 0.2s var(--ease);
+}
+.shop-add:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+.shop-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
 /* --- Visiting ------------------------------------------------------------------ */
+
+/* A short version of the home page hero: same photo layers, same facts rail,
+   so the two pages read as one site. */
+.visit-hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 380px;
+  height: 44vh;
+  max-height: 480px;
+  margin-bottom: 44px;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  isolation: isolate;
+}
+/* The hero's scrim is built for an 800px photograph; at banner height its
+   stops compress into near-black, so this one is gentler and reaches only as
+   far up as the type. */
+.visit-hero .hero-scrim {
+  background:
+    linear-gradient(to top, rgba(10, 8, 6, 0.88) 0%, rgba(10, 8, 6, 0.55) 42%, rgba(10, 8, 6, 0.1) 78%),
+    linear-gradient(to right, rgba(10, 8, 6, 0.55) 0%, rgba(10, 8, 6, 0.08) 62%, transparent 100%);
+}
+.visit-hero .hero-tint {
+  opacity: 0.35;
+}
+.visit-hero-inner {
+  position: relative;
+  padding: 0 clamp(22px, 3.4vw, 40px) 30px;
+  color: #fff;
+}
+.visit-hero-inner h2 {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(32px, 3.8vw, 54px);
+  line-height: 1;
+  letter-spacing: -0.028em;
+  margin-bottom: 22px;
+  text-shadow: 0 2px 40px rgba(0, 0, 0, 0.4);
+}
+.visit-hero .hero-facts {
+  grid-template-columns: repeat(4, 1fr);
+  max-width: none;
+}
+.visit-hero .fact {
+  padding: 13px 18px 15px;
+}
 
 .visit-grid {
   display: grid;
@@ -877,6 +1082,11 @@
   font-size: 15px;
   color: var(--ink-2);
 }
+.hours-row span {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
 .hours-row i {
   flex: 1;
   border-bottom: 1px dotted var(--line-strong);
@@ -892,8 +1102,36 @@
 .hours-row.shut b {
   color: var(--ink-4);
 }
-.qa + .qa {
-  margin-top: 20px;
+
+/* Today is the only row anyone is actually looking for. */
+.hours-row.is-today {
+  color: var(--ink);
+  font-weight: 500;
+}
+.hours-row.is-today em {
+  font-style: normal;
+  padding: 3px 8px;
+  border-radius: var(--r-pill);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.hours-row.is-today b {
+  color: var(--accent);
+}
+
+.qa-list {
+  display: grid;
+  gap: 12px;
+}
+.qa {
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
 }
 .qa h4 {
   font-family: var(--font-display);
@@ -908,9 +1146,17 @@
   margin-top: 5px;
   max-width: 62ch;
 }
+.qa-src {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  font-size: 11px;
+  color: var(--ink-4);
+}
 
 .visit-card {
-  padding: 20px;
+  padding: 22px 20px 20px;
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
   background: var(--surface);
@@ -923,21 +1169,35 @@
 }
 .visit-addr {
   font-family: var(--font-display);
-  font-size: 19px;
-  line-height: 1.45;
+  font-size: 21px;
+  line-height: 1.4;
   color: var(--ink);
-  margin: 10px 0 14px;
+  margin: 12px 0 16px;
+}
+.visit-lines {
+  display: grid;
+  gap: 10px;
+  padding-top: 15px;
+  border-top: 1px solid var(--line-soft);
 }
 .visit-link {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   font-size: 13.5px;
   color: var(--ink-2);
   font-variant-numeric: tabular-nums;
+  transition: color 0.18s var(--ease);
 }
-.visit-link:hover {
+a.visit-link:hover {
   color: var(--accent);
+}
+.visit-link.is-static {
+  color: var(--ink-3);
+}
+.visit-directions {
+  width: 100%;
+  margin-top: 18px;
 }
 
 /* --- Journal -------------------------------------------------------------------- */
@@ -1031,6 +1291,20 @@
   .visit-card {
     position: static;
   }
+  .visit-hero {
+    min-height: 320px;
+    margin-bottom: 30px;
+  }
+  /* Two facts per row rather than four squeezed cells. */
+  .visit-hero .hero-facts {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .visit-hero .fact:nth-child(-n + 2) {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  }
+  .visit-hero .fact:nth-child(2n) {
+    border-right: 0;
+  }
 }
 
 /* ==========================================================================
@@ -1039,34 +1313,67 @@
 
 /* --- Philosophy: photographs drifting past the headline --------------------- */
 
+/* Exactly two viewports tall, which puts the pinned run at 1/3 → 2/3 of the
+   section's progress at any screen size — the window every reveal below is
+   timed against. */
 .phil {
   position: relative;
-  padding: clamp(80px, 14vh, 150px) 0 clamp(120px, 20vh, 230px);
-  background: var(--surface);
+  z-index: 2;
+  height: calc(2 * var(--vh));
+  background: transparent;
+}
+.phil-panel {
+  --ink: #332f29;
+  --ink-2: #59544c;
+  --ink-3: #7b746a;
+  --ink-4: #a29b91;
+  --surface: #f4f2ec;
+  --surface-2: #ebe8df;
+  position: sticky;
+  top: 0;
+  height: var(--vh);
   overflow: hidden;
+  background: #f4f2ec;
+  box-shadow: 0 -28px 70px rgba(10, 8, 6, 0.16);
 }
 .phil-inner {
   position: relative;
-  max-width: 1180px;
+  width: 100%;
+  height: 100%;
+  max-width: 1380px;
   margin: 0 auto;
-  padding: 0 40px;
+  padding: 0 clamp(26px, 6vw, 88px);
   text-align: center;
+}
+
+/* The headline holds the middle of the panel at any height; the points rail
+   owns the bottom lane, and the padding below keeps the two from meeting. */
+.phil-type {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 11vh;
+  pointer-events: none;
 }
 .phil-eyebrow {
   color: var(--ink-3);
-  margin-bottom: 26px;
+  margin-bottom: clamp(16px, 2.4vh, 26px);
+  will-change: opacity;
 }
 .phil-h {
-  position: relative;
-  z-index: 2;
   font-family: var(--font-sans);
   font-weight: 300;
-  font-size: clamp(34px, 6.2vw, 82px);
-  line-height: 1.06;
-  letter-spacing: -0.035em;
+  font-size: clamp(40px, 6.2vw, 92px);
+  line-height: 0.98;
+  letter-spacing: -0.05em;
   color: var(--ink);
-  max-width: 16ch;
-  margin: 0 auto;
+  max-width: 14ch;
+  text-wrap: balance;
+  will-change: transform, opacity;
 }
 .phil-h em {
   font-family: var(--font-display);
@@ -1075,51 +1382,102 @@
   letter-spacing: -0.02em;
 }
 
+/* --- The photographs ride the outer margins, clear of the text column ------- */
+
 .phil-img {
   position: absolute;
+  z-index: 1;
   background-size: cover;
   background-position: center;
-  border-radius: 4px;
-  box-shadow: var(--shadow-lg);
+  border-radius: 3px;
+  box-shadow: 0 18px 45px rgba(13, 10, 8, 0.16);
   will-change: transform, opacity;
 }
-/* One sits behind the type, two cross in front — that overlap is the effect. */
 .phil-img.is-a {
-  z-index: 1;
-  width: clamp(96px, 11vw, 150px);
+  width: clamp(78px, 7.6vw, 112px);
   aspect-ratio: 3 / 4;
-  left: 4%;
-  top: 46%;
+  left: 3.5%;
+  top: 14%;
 }
 .phil-img.is-b {
-  z-index: 3;
-  width: clamp(88px, 10vw, 136px);
-  aspect-ratio: 3 / 4;
-  right: 5%;
-  top: 58%;
+  width: clamp(88px, 8.6vw, 128px);
+  aspect-ratio: 1 / 1;
+  left: 8.5%;
+  top: 52%;
 }
 .phil-img.is-c {
-  z-index: 3;
-  width: clamp(128px, 15vw, 210px);
-  aspect-ratio: 4 / 3;
-  left: 50%;
-  bottom: -14%;
+  width: clamp(112px, 12vw, 172px);
+  aspect-ratio: 3 / 4;
+  right: 5%;
+  top: 31%;
+}
+
+/* --- The payoff: a rule that draws itself, then the three points ------------ */
+
+.phil-rail {
+  position: absolute;
+  z-index: 4;
+  left: clamp(26px, 6vw, 88px);
+  right: clamp(26px, 6vw, 88px);
+  bottom: clamp(30px, 6vh, 62px);
+  text-align: left;
+}
+.phil-rule {
+  display: block;
+  height: 1px;
+  background: var(--ink-4);
+  opacity: 0.5;
+  transform-origin: left center;
+  will-change: transform;
+}
+.phil-points {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px clamp(24px, 4vw, 60px);
+  padding-top: clamp(16px, 2.6vh, 26px);
+}
+.phil-point {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink-2);
+  will-change: transform, opacity;
+}
+.phil-point b {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+.phil-point span {
+  max-width: 30ch;
 }
 
 /* --- Craft: thumbnail grows to full bleed ----------------------------------- */
 
 .craft {
   position: relative;
+  z-index: 4;
   height: 210vh;
   background: var(--surface);
+  box-shadow: 0 -26px 70px rgba(10, 8, 6, 0.12);
 }
 .craft-pin {
+  --ink: #332f29;
+  --ink-2: #59544c;
+  --ink-3: #7b746a;
+  --surface: #f4f2ec;
   position: sticky;
   top: 0;
-  height: 100vh;
+  height: var(--vh);
   overflow: hidden;
   display: grid;
   place-items: center;
+  background: #f4f2ec;
 }
 .craft-photo {
   position: absolute;
@@ -1140,7 +1498,8 @@
 }
 .craft-copy {
   position: absolute;
-  top: 16vh;
+  top: auto;
+  bottom: 7vh;
   left: 0;
   right: 0;
   max-width: 1320px;
@@ -1151,7 +1510,7 @@
 .craft-copy h2 {
   font-family: var(--font-sans);
   font-weight: 300;
-  font-size: clamp(30px, 4.6vw, 62px);
+  font-size: clamp(42px, 5.2vw, 74px);
   line-height: 1.04;
   letter-spacing: -0.032em;
   color: var(--ink);
@@ -1213,7 +1572,7 @@
 .proc-pin {
   position: sticky;
   top: 0;
-  height: 100vh;
+  height: var(--vh);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -1512,7 +1871,8 @@
     height: 180vh;
   }
   .craft-copy {
-    top: 12vh;
+    top: auto;
+    bottom: 8vh;
   }
   .craft-proof {
     left: clamp(24px, 6vw, 90px);
@@ -1535,13 +1895,58 @@
     max-width: none;
     margin: 0 auto;
   }
-  .phil-img.is-a,
+  /* .phil keeps its two-viewport height here — shortening it would slide the
+     pinned run away from the reveal windows the section is timed against. */
+  .phil-type {
+    padding-bottom: 22vh;
+  }
+  .phil-h {
+    font-size: clamp(38px, 9.6vw, 68px);
+    line-height: 1;
+    max-width: 16ch;
+  }
+  /* No margin left either side of the type at this width, so the photographs
+     move above it as a pair. The third would have to sit on the points rail,
+     so it sits this one out. */
+  .phil-img.is-a {
+    left: 4%;
+    top: 7%;
+    width: clamp(78px, 21vw, 112px);
+  }
   .phil-img.is-b {
-    opacity: 0.35 !important;
+    left: auto;
+    right: 5%;
+    top: 12%;
+    width: clamp(86px, 23vw, 124px);
+  }
+  .phil-img.is-c {
+    display: none;
+  }
+  .phil-points {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .phil-point {
+    font-size: 12.5px;
+  }
+  .phil-point span {
+    max-width: none;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .intro-stack > .hero {
+    position: relative;
+  }
+  .phil {
+    height: auto;
+    background: var(--surface);
+  }
+  .phil-panel {
+    position: relative;
+    height: auto;
+    min-height: 760px;
+  }
   .phil-img,
   .craft-photo {
     transition: none !important;

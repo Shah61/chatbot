@@ -46,7 +46,7 @@ export function TransactionsPage() {
       icon: 'trendUp',
       label: restaurant ? 'Average order' : 'Diary utilisation',
       value: restaurant ? money(62, brand.currency) : '78%',
-      note: restaurant ? 'up £8 since Saint started upselling' : 'up from 61% before Saint',
+      note: restaurant ? 'up RM 8 since Saint started upselling' : 'up from 61% before Saint',
     },
     {
       icon: 'bell',

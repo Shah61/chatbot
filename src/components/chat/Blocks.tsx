@@ -223,7 +223,7 @@ export function BlockView(p: BlockProps) {
         <div className="blk ful-row">
           {(
             [
-              { id: 'delivery', icon: 'truck', name: 'Delivery', note: '25 min · £3.50' },
+              { id: 'delivery', icon: 'truck', name: 'Delivery', note: '30 min · RM 5' },
               { id: 'collection', icon: 'bag', name: 'Collection', note: 'Ready in 20 min' },
             ] as const
           ).map((f) => {

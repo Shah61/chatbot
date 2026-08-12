@@ -417,7 +417,7 @@ export function reply(action: Action, ctx: Ctx): Reply {
               kind: 'text',
               text:
                 action.value === 'delivery'
-                  ? 'Twenty-five minutes at the moment. Where are we bringing it?'
+                  ? 'About thirty minutes at the moment. Where are we bringing it?'
                   : 'Ready in about twenty minutes. Who is collecting?',
             },
             { kind: 'contactForm', wants: action.value === 'delivery' ? 'address' : 'phone' },
@@ -547,7 +547,7 @@ export function reply(action: Action, ctx: Ctx): Reply {
               ? 'Ready 20 min'
               : brand.vertical === 'salon'
                 ? 'Next day'
-                : '25 min',
+                : '30 min',
           placedAt: Date.now(),
         };
         return {

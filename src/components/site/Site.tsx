@@ -5,8 +5,10 @@ import {
   JournalView,
   PageHead,
   PeopleView,
+  ShopView,
   StoryView,
   VisitingView,
+  openToday,
   routeFor,
   type Route,
 } from './pages';
@@ -25,24 +27,6 @@ const CTA_SECOND: Record<Brand['vertical'], string> = {
   clinic: 'Meet the team',
   salon: 'Meet the stylists',
 };
-
-/** Reads today's row out of the opening hours table. */
-function openToday(brand: Brand) {
-  const dow = new Date().getDay();
-  const name = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][dow];
-  const row =
-    brand.hours.find((h) => h.day === name) ??
-    brand.hours.find((h) => {
-      const [a, b] = h.day.split(' – ');
-      if (!b) return false;
-      const order = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-      const ai = order.indexOf(a);
-      const bi = order.indexOf(b);
-      return ai > -1 && bi > -1 && dow >= ai && dow <= bi;
-    });
-  if (!row || row.hours === 'Closed') return { open: false, label: 'Closed today' };
-  return { open: true, label: `Until ${row.hours.split(' – ')[1]}` };
-}
 
 export function Site() {
   const { brand, scheme } = useStore();
@@ -71,8 +55,11 @@ export function Site() {
           {route.kind === 'catalog' && (
             <CatalogView brand={brand} only={route.only} dark={dark} />
           )}
+          {route.kind === 'shop' && <ShopView brand={brand} only={route.only} dark={dark} />}
           {route.kind === 'people' && <PeopleView brand={brand} dark={dark} />}
-          {route.kind === 'visiting' && <VisitingView brand={brand} />}
+          {route.kind === 'visiting' && (
+            <VisitingView brand={brand} photoUrl={photo(brand.images.hero, 1600)} />
+          )}
           {route.kind === 'journal' && <JournalView brand={brand} />}
           {route.kind === 'story' && (
             <StoryView brand={brand} photoUrl={photo(brand.images.story, 1000)} />
@@ -86,8 +73,11 @@ export function Site() {
 
   return (
     <div className="site">
-      {/* ---------- hero ---------- */}
-      <header className="hero">
+      {/* The opening pair is one layered scroll scene: the editorial panel
+          rises over the pinned hero instead of following it like a block. */}
+      <div className="intro-stack">
+        {/* ---------- hero ---------- */}
+        <header className="hero">
         <div className="hero-photo" style={{ backgroundImage: `url(${photo(brand.images.hero, 2000)})` }} />
         <div className="hero-tint" />
         <div className="hero-scrim" />
@@ -149,7 +139,12 @@ export function Site() {
             </div>
           </div>
         </div>
-      </header>
+        </header>
+
+        <Philosophy brand={brand} />
+      </div>
+
+      <Craft brand={brand} />
 
       {/* ---------- marquee ---------- */}
       <div className="marquee">
@@ -163,8 +158,6 @@ export function Site() {
         </div>
       </div>
 
-      <Philosophy brand={brand} />
-      <Craft brand={brand} />
       <Process brand={brand} />
 
       <div className="shell">

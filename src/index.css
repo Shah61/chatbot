@@ -22,6 +22,12 @@
 
   --ease: cubic-bezier(0.32, 0.72, 0.29, 1);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Height of the area a pinned section actually gets. The storefront scrolls
+     inside .body rather than the window, so 100vh overshoots by whatever the
+     demo chrome occupies; .app narrows this. Delete the chrome and the default
+     is already correct. */
+  --vh: 100vh;
 }
 
 [data-theme='dark'] {

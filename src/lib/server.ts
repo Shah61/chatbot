@@ -12,10 +12,18 @@ import type { Block, Brand, Message } from './types';
 /* ==========================================================================
    Where the backend lives.
 
-   In development this is empty: every call is same-origin `/api/…` and the
-   Vite dev proxy (vite.config.ts) forwards it to localhost:8787. That proxy
-   only exists while `vite dev` is running — which is why a deployed build
-   needs VITE_API_URL, and why nothing needed configuring locally.
+   One variable, VITE_API_URL, but it is reached two different ways.
+
+   Deployed there is no proxy, so the browser calls the backend directly and
+   the backend has to allow that origin.
+
+   Under `vite dev` the same URL is handed to the proxy instead
+   (vite.config.ts) and this stays empty, so every call is a same-origin
+   `/api/…`. Calling the backend straight from localhost would need
+   http://localhost:5173 in its CORS allowlist — which it should not have, and
+   without it the browser drops the response and the widget quietly falls back
+   to the scripted flow. Going through the proxy sidesteps CORS entirely and
+   keeps the session cookie first-party.
 
    VITE_ is the right prefix here: this is a public URL, not a secret. The
    OpenRouter key stays on the backend and never reaches the browser.
@@ -24,7 +32,9 @@ import type { Block, Brand, Message } from './types';
 const RAW = (import.meta.env.VITE_API_URL ?? '').trim().replace(/\/+$/, '');
 
 /** Accepts a bare host too, e.g. "api.example.com". */
-export const API_BASE = RAW && !/^https?:\/\//i.test(RAW) ? `https://${RAW}` : RAW;
+const HOSTED = RAW && !/^https?:\/\//i.test(RAW) ? `https://${RAW}` : RAW;
+
+export const API_BASE = import.meta.env.DEV ? '' : HOSTED;
 
 const url = (path: string) => `${API_BASE}${path}`;
 

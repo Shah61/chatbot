@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Icon } from '../Icon';
 import { MessageRow } from './MessageRow';
 import { PRODUCT } from '../../lib/brands';
-import { cartTotal, greeting, initialState, reply } from '../../lib/bot';
+import { cartTotal, greeting, homeReplies, initialState, reply } from '../../lib/bot';
 import { useLive } from '../../lib/live';
 import {
   ChatUnavailable,
@@ -170,6 +170,15 @@ export function ChatWidget() {
         acc = acc || 'Sorry — I did not catch that. Could you say it another way?';
         render();
       }
+
+      /* Every answer ends somewhere to go next. Anything the model sent of
+         its own — a slot grid, a ticket — is the better next step, and does
+         not want a row of chips underneath repeating the offer. */
+      if (!handoff && !extra.length) {
+        extra.push({ kind: 'quickReplies', options: homeReplies(brand) });
+        render();
+      }
+
       if (handoff) live.requestAgent();
       return true;
     },

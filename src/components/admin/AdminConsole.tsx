@@ -1,13 +1,14 @@
 import { Icon, type IconName } from '../Icon';
 import { Overview } from './Overview';
 import { Inbox } from './Inbox';
+import { ChatlogPage } from './ChatlogPage';
 import { TransactionsPage } from './TransactionsPage';
 import { CatalogPage } from './CatalogPage';
 import { RotaPage } from './RotaPage';
 import { KnowledgePage } from './KnowledgePage';
 import { SettingsPage } from './SettingsPage';
 import { useStore, type AdminPage } from '../../lib/store';
-import { cx } from '../../lib/utils';
+import { MOD_HINT, cx } from '../../lib/utils';
 import './admin.css';
 
 type PageId = AdminPage;
@@ -50,6 +51,15 @@ export function AdminConsole() {
       mark: 'Inbox',
       count: 3,
       flush: true,
+    },
+    {
+      id: 'chatlog',
+      label: 'Chatlog',
+      icon: 'sparkle',
+      group: brand.name,
+      title: 'Chatlog',
+      sub: 'What every answer cost, and the ones that did not land.',
+      mark: 'Spend',
     },
     {
       id: 'ledger',
@@ -135,7 +145,7 @@ export function AdminConsole() {
               (window as unknown as { openPalette?: () => void }).openPalette?.();
             }}
           />
-          <kbd>⌘K</kbd>
+          <kbd>{MOD_HINT}</kbd>
         </div>
 
         <nav className="side-nav scroll-area">
@@ -198,6 +208,7 @@ export function AdminConsole() {
         <div className={cx('page scroll-area', current.flush && 'flush')}>
           {page === 'overview' && <Overview />}
           {page === 'inbox' && <Inbox />}
+          {page === 'chatlog' && <ChatlogPage />}
           {page === 'ledger' && <TransactionsPage />}
           {page === 'catalog' && <CatalogPage />}
           {page === 'rota' && brand.people.length > 0 && <RotaPage />}

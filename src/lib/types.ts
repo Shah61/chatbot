@@ -269,6 +269,93 @@ export type Action =
 
 /* --- Admin ------------------------------------------------------------------ */
 
+/**
+ * How one model turn ended. The first two are the bill doing its job; every
+ * other value is a reason someone should look at the transcript, which is the
+ * whole point of the chatlog — 'successful' is not a useful thing to read.
+ */
+export type TurnOutcome =
+  | 'answered'
+  | 'booked'
+  | 'escalated'
+  | 'low confidence'
+  | 'bad answer'
+  | 'wrong info'
+  | 'refused'
+  | 'cut off'
+  | 'tool error'
+  | 'timeout'
+  | 'rate limited'
+  | 'error';
+
+/**
+ * Where a booking got to. 'rescheduled' is its own state rather than a second
+ * 'booked' row because the owner's question is usually "how many moved?", and
+ * a diary that quietly rewrites the date cannot answer it.
+ */
+export type BookingStatus =
+  | 'booked'
+  | 'rescheduled'
+  | 'attended'
+  | 'cancelled'
+  | 'no show'
+  | 'waitlist';
+
+/** One line in the diary. A clinic books time with a person, a restaurant
+    books a table for a number of people; the shape covers both. */
+export interface DiaryEntry {
+  id: string;
+  ref: string;
+  /** ISO yyyy-mm-dd, so the calendar can key off it directly. */
+  date: string;
+  slot: string;
+  minutes: number;
+  customer: string;
+  initials: string;
+  contact: string;
+  /** Absent for a restaurant table, and for 'any available'. */
+  personId?: string;
+  personName?: string;
+  personHue?: number;
+  itemId: string;
+  itemName: string;
+  /** Restaurants only. */
+  party?: number;
+  status: BookingStatus;
+  channel: ChannelId;
+  source: 'Saint' | 'Front desk' | 'Phone' | 'Walk-in';
+  value: number;
+  /** Set on rescheduled rows: the date it was moved off. */
+  movedFrom?: string;
+  note?: string;
+}
+
+/** One model call, priced. The unit the AI bill is actually made of. */
+export interface ChatlogEntry {
+  id: string;
+  /** Clock time, and minutes ago for the grouping headers. */
+  at: string;
+  ago: number;
+  conversation: string;
+  initials: string;
+  channel: ChannelId;
+  intent: string;
+  model: string;
+  tokensIn: number;
+  tokensOut: number;
+  /** Prompt tokens served from cache — charged at a tenth, so worth showing. */
+  cached: number;
+  /** USD. The bill arrives in dollars whatever the till takes. */
+  cost: number;
+  /** Seconds, end to end. */
+  latency: number;
+  outcome: TurnOutcome;
+  /** What the visitor asked, trimmed to a line. */
+  prompt: string;
+  /** Present on everything that is not plainly successful. */
+  note?: string;
+}
+
 /* --- Live support ----------------------------------------------------------- */
 
 export interface Agent {

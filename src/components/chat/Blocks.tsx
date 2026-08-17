@@ -44,11 +44,15 @@ export function BlockView(p: BlockProps) {
   };
 
   switch (block.kind) {
+    /* Unlike the pickers below, these never lock. A quick reply is a shortcut
+       for something the visitor could type at any point in the conversation,
+       so greying it out once the next message lands only ever reads as the
+       widget having gone dead. */
     case 'quickReplies':
       return (
         <div className="blk qr-row">
           {block.options.map((o) => (
-            <button key={o.label} className="qr" disabled={!live} onClick={() => onAction(o.action)}>
+            <button key={o.label} className="qr" onClick={() => onAction(o.action)}>
               {o.label}
             </button>
           ))}

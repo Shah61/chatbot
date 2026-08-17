@@ -1,10 +1,16 @@
 import type {
+  BookingStatus,
   Brand,
+  ChannelId,
+  ChatlogEntry,
   ConversationSummary,
+  DiaryEntry,
   Message,
   Transaction,
+  TurnOutcome,
+  Vertical,
 } from './types';
-import { initialsOf, money } from './utils';
+import { hash, initialsOf, iso, money } from './utils';
 
 /* Demo traffic. Everything is derived from the brand so the console tells a
    coherent story whichever template you are looking at. */
@@ -682,3 +688,541 @@ export function digestFor(brand: Brand): { headline: string; insights: Insight[]
 }
 
 const nfmt = (n: number) => new Intl.NumberFormat('en-GB').format(n);
+
+/* ==========================================================================
+   Chatlog
+
+   What the assistant cost, and where it went wrong. Every row is one model
+   call: tokens in, tokens out, what it was asked and how it ended. The demo
+   figures are deterministic — same brand, same numbers — because a bill that
+   reshuffles on every render is not a bill anyone would read.
+   ========================================================================== */
+
+/** Per million tokens, in USD, in / out. Roughly the published rates. */
+const MODELS: { name: string; in: number; out: number; share: number }[] = [
+  { name: 'claude-sonnet-5', in: 3, out: 15, share: 0.72 },
+  { name: 'claude-haiku-4.5', in: 1, out: 5, share: 0.24 },
+  { name: 'claude-opus-5', in: 15, out: 75, share: 0.04 },
+];
+
+/* Anything past 'escalated' is a row someone should read. The weights are
+   what a well-behaved assistant actually looks like: mostly clean, a thin
+   tail of trouble. */
+const OUTCOMES: { outcome: TurnOutcome; weight: number; note?: string }[] = [
+  { outcome: 'answered', weight: 62 },
+  { outcome: 'booked', weight: 19 },
+  { outcome: 'escalated', weight: 7, note: 'Handed to a person on request' },
+  { outcome: 'low confidence', weight: 3.4, note: 'No knowledge article scored above 0.4 — answered from the brand summary' },
+  { outcome: 'bad answer', weight: 2.4, note: 'Visitor pressed thumbs down, then asked the same thing again' },
+  { outcome: 'wrong info', weight: 1.4, note: 'Quoted a price the catalog had already changed' },
+  { outcome: 'refused', weight: 1.3, note: 'Declined a question it holds the answer to' },
+  { outcome: 'cut off', weight: 1.2, note: 'Hit the 1,024-token ceiling mid-sentence' },
+  { outcome: 'tool error', weight: 0.9, note: 'check_availability returned 502 — fell back to the scripted flow' },
+  { outcome: 'timeout', weight: 0.7, note: 'No first token inside 30s; the visitor left' },
+  { outcome: 'rate limited', weight: 0.5, note: '429 from the provider — retried once, then queued' },
+  { outcome: 'error', weight: 0.2, note: 'Upstream 500. Nothing reached the visitor' },
+];
+
+/** Everything that is not plainly successful — what the filter is for. */
+export const FLAGGED: TurnOutcome[] = OUTCOMES.slice(3).map((o) => o.outcome);
+
+export const isFlagged = (o: TurnOutcome) => FLAGGED.includes(o);
+
+const PROMPTS: Record<Vertical, string[]> = {
+  restaurant: [
+    'is the ayam gepuk still on tonight',
+    'table for 6 saturday late',
+    'do you deliver to mont kiara',
+    'whats in the sambal bawang',
+    'can i change my order to collection',
+    'is everything halal certified',
+    'how spicy is full-power',
+    'do you do set menus for 20 people',
+    'parking near the restaurant?',
+    'my rider hasnt arrived, order 4820',
+  ],
+  clinic: [
+    'earliest appointment this week',
+    'do you take bupa',
+    'need to move fridays appointment',
+    'is the mole check done by a dermatologist',
+    'how much is a full health review',
+    'can i get a repeat prescription',
+    'do i need a referral',
+    'is there step-free access',
+    'what happens if i cancel same day',
+    'my results havent come through',
+  ],
+  salon: [
+    'balayage on dark hair, how long',
+    'do i need a patch test',
+    'can i book with jules on thursday',
+    'how much for a cut and colour',
+    'do you sell the shampoo you used',
+    'can i bring my daughter',
+    'whats your cancellation policy',
+    'is there parking',
+    'gift card for a friend?',
+    'my colour has gone brassy',
+  ],
+};
+
+const CHATLOG_CHANNELS: ChannelId[] = ['web', 'web', 'whatsapp', 'web', 'instagram', 'web', 'sms', 'whatsapp'];
+
+/** Pick from a weighted table with a value already in [0, 1). */
+function weighted<T extends { weight: number }>(table: T[], r: number): T {
+  const total = table.reduce((n, x) => n + x.weight, 0);
+  let acc = 0;
+  for (const row of table) {
+    acc += row.weight / total;
+    if (r < acc) return row;
+  }
+  return table[table.length - 1];
+}
+
+export function chatlogFor(brand: Brand, count = 60): ChatlogEntry[] {
+  const prompts = PROMPTS[brand.vertical];
+  const intents = topIntentsFor(brand);
+
+  return Array.from({ length: count }, (_, i) => {
+    /* One hash per field, with the row index buried mid-string. Taking
+       different bit windows out of a single hash looks like it should work
+       and does not: FNV-1a only avalanches over the bytes that follow the
+       one that changed, so keys differing in their last character land a few
+       hundred apart and every row shows the same token count. */
+    const r = (field: string) => hash(`${brand.id}/${i}/${field}/log`) / 4294967296;
+
+    const model = weighted(MODELS.map((m) => ({ ...m, weight: m.share })), r('model'));
+    const picked = weighted(OUTCOMES, r('outcome'));
+    const outcome = picked.outcome;
+
+    /* A long conversation costs more because the whole transcript is resent
+       every turn — which is the single most useful thing this page teaches. */
+    const turns = 1 + Math.floor(r('turns') * 9);
+    const tokensIn = Math.round(900 + turns * (420 + r('in') * 380));
+    const cached = outcome === 'error' ? 0 : Math.round(tokensIn * (0.35 + r('cache') * 0.4));
+    const tokensOut =
+      outcome === 'error' || outcome === 'timeout'
+        ? 0
+        : outcome === 'cut off'
+          ? 1024
+          : Math.round(90 + r('out') * 420);
+
+    /* Cached prompt tokens bill at a tenth. */
+    const cost =
+      ((tokensIn - cached) * model.in + cached * model.in * 0.1 + tokensOut * model.out) / 1e6;
+
+    const ago = 3 + i * 11 + Math.floor(r('when') * 9);
+    const when = new Date(Date.now() - ago * 60000);
+
+    const name = NAMES[i % NAMES.length];
+
+    return {
+      id: `${brand.id}-log-${i}`,
+      at: when.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+      ago,
+      conversation: name,
+      initials: initialsOf(name),
+      channel: CHATLOG_CHANNELS[i % CHATLOG_CHANNELS.length],
+      intent: intents[i % intents.length].label,
+      model: model.name,
+      tokensIn,
+      tokensOut,
+      cached,
+      cost,
+      latency:
+        outcome === 'timeout' ? 30 : Number((0.6 + r('lat') * 2.6 + turns * 0.12).toFixed(1)),
+      outcome,
+      prompt: prompts[i % prompts.length],
+      note: picked.note,
+    };
+  });
+}
+
+/** Turns behind one conversation. A booking argues; 'what time do you close'
+    does not. Every call resends the transcript, so this is the multiplier
+    that actually decides the bill. */
+const CALLS_PER_CONVO = 3.4;
+
+/**
+ * The bill, derived from the log rather than invented alongside it: the mean
+ * cost of a sampled call times the conversation volume the rest of the
+ * console already reports. The chart and the tiles cannot disagree because
+ * they are the same number.
+ */
+export function aiSpendFor(brand: Brand) {
+  const log = chatlogFor(brand);
+  const mean = log.reduce((n, e) => n + e.cost, 0) / log.length;
+  const volume = series14[brand.id];
+  const series = volume.map((d) => Number((d[0] * CALLS_PER_CONVO * mean).toFixed(2)));
+  return {
+    series,
+    fortnight: series.reduce((n, v) => n + v, 0),
+    today: series[series.length - 1],
+    callsToday: Math.round(volume[volume.length - 1][0] * CALLS_PER_CONVO),
+    mean,
+  };
+}
+
+/** Spend and volume per model, derived from the log so the totals agree. */
+export function modelMixFor(brand: Brand) {
+  const log = chatlogFor(brand);
+  return MODELS.map((m) => {
+    const rows = log.filter((e) => e.model === m.name);
+    return {
+      name: m.name,
+      calls: rows.length,
+      tokens: rows.reduce((n, e) => n + e.tokensIn + e.tokensOut, 0),
+      cost: rows.reduce((n, e) => n + e.cost, 0),
+      rate: `$${m.in}/$${m.out} per M`,
+    };
+  }).filter((m) => m.calls > 0);
+}
+
+/* --- Transcripts -------------------------------------------------------------
+   A log row is one model call; the drawer behind it has to answer 'what did
+   it actually say'. The turns are reconstructed from the row — the outcome
+   decides the reply, so a refusal reads like a refusal and a tool error shows
+   the call that failed. */
+
+export interface ToolCall {
+  name: string;
+  args: string;
+  result: string;
+  ok: boolean;
+  ms: number;
+}
+
+export interface TranscriptTurn {
+  role: 'user' | 'bot' | 'system';
+  text: string;
+  /** Minutes before the logged call; the logged turn itself is 0. */
+  before: number;
+  /** The turn this log row is about. Everything else is context. */
+  focus?: boolean;
+  tool?: ToolCall;
+}
+
+const OPENERS: Record<Vertical, [ 'user' | 'bot', string ][][]> = {
+  restaurant: [
+    [
+      ['user', 'hi, are you open tonight?'],
+      ['bot', 'We are — kitchen runs to 22:30, last orders at 22:00. What can I get you?'],
+    ],
+    [
+      ['user', 'hey'],
+      ['bot', 'Hai — I can take an order, book you a table, or answer anything about the kitchen.'],
+    ],
+  ],
+  clinic: [
+    [
+      ['user', 'hello'],
+      ['bot', 'Good day — I can book you in, move an appointment, or answer anything about the clinic.'],
+    ],
+    [
+      ['user', 'are you taking new patients?'],
+      ['bot', 'We are. First visits are forty minutes, and I can find you one this week.'],
+    ],
+  ],
+  salon: [
+    [
+      ['user', 'hi there'],
+      ['bot', 'Hello — I can book you a chair, match you to a stylist, or sort a product order.'],
+    ],
+    [
+      ['user', 'do you have anything this week?'],
+      ['bot', 'Most days, yes. Colour needs a bit more notice — what are you after?'],
+    ],
+  ],
+};
+
+/** The reply the row is really about, and anything the visitor said after. */
+function answerFor(e: ChatlogEntry, brand: Brand): { text: string; then?: string } {
+  const person = brand.people[0]?.name.split(' ').slice(-1)[0];
+  const first = brand.catalog.find((i) => i.available) ?? brand.catalog[0];
+  const price = money(first?.price ?? 0, brand.currency);
+
+  switch (e.outcome) {
+    case 'booked':
+      return { text: `Done — you are in the diary. I have sent the confirmation to your phone.` };
+    case 'escalated':
+      return {
+        text: `That one deserves a person rather than me. Bringing in ${brand.assistant.human} now — one moment.`,
+      };
+    case 'low confidence':
+      return {
+        text: `I think so, though I would rather not guess at the detail. ${brand.legal} can confirm on ${brand.phone} — shall I have someone call you back?`,
+      };
+    case 'bad answer':
+      return {
+        text: `Our opening hours are on the Visiting page, and there is parking on the street outside.`,
+        then: `that isn't what I asked. I asked about ${e.prompt}`,
+      };
+    case 'wrong info':
+      return {
+        text: `${first?.name} is ${price} — that has not changed this year.`,
+        then: `the website says something different?`,
+      };
+    case 'refused':
+      return {
+        text: `That's outside what I can help with, I'm afraid. I'm only set up for ${brand.legal} bookings and information.`,
+        then: `but it's on your own website`,
+      };
+    case 'cut off':
+      return {
+        text: `Of course. ${first?.name} is ${price} and runs ${first?.duration ?? 'about forty minutes'}. ${person ? `${person} covers it most days, and the` : 'The'} usual pattern is a first visit followed by a review a fortnight later, at which point we`,
+      };
+    case 'tool error':
+      return {
+        text: `I could not reach the diary just then. I can take your number and have the desk call you back within the hour — would that do?`,
+      };
+    case 'timeout':
+      return { text: '' };
+    case 'rate limited':
+      return { text: '' };
+    case 'error':
+      return { text: '' };
+    default:
+      return {
+        text: `Yes — ${first?.name} is ${price}${first?.duration ? `, ${first.duration}` : ''}. Would you like me to put you down for one?`,
+      };
+  }
+}
+
+function toolFor(e: ChatlogEntry): ToolCall | undefined {
+  const slow = Math.round(120 + (hash(e.id + 'tool') % 400));
+  if (e.outcome === 'tool error')
+    return {
+      name: 'check_availability',
+      args: `{ "from": "today", "days": 7 }`,
+      result: '502 Bad Gateway — diary service unreachable',
+      ok: false,
+      ms: 30000,
+    };
+  if (e.outcome === 'booked')
+    return {
+      name: 'create_booking',
+      args: `{ "slot": "09:00", "name": "${e.conversation}" }`,
+      result: `{ "ref": "APT-${4100 + (hash(e.id) % 800)}", "confirmed": true }`,
+      ok: true,
+      ms: slow,
+    };
+  if (e.outcome === 'wrong info')
+    return {
+      name: 'search_knowledge',
+      args: `{ "q": "price" }`,
+      result: '2 articles, top score 0.71 — both last edited in March',
+      ok: true,
+      ms: slow,
+    };
+  if (e.outcome === 'low confidence')
+    return {
+      name: 'search_knowledge',
+      args: `{ "q": "${e.prompt.slice(0, 28)}" }`,
+      result: 'no article above 0.4 — falling back to the brand summary',
+      ok: true,
+      ms: slow,
+    };
+  return undefined;
+}
+
+export function transcriptFor(e: ChatlogEntry, brand: Brand): TranscriptTurn[] {
+  const opener = OPENERS[brand.vertical][hash(e.id + 'open') % 2];
+  const answer = answerFor(e, brand);
+  const turns: TranscriptTurn[] = [
+    {
+      role: 'system',
+      text: `Conversation opened · ${e.channel === 'web' ? 'website widget' : e.channel}`,
+      before: 9,
+    },
+    ...opener.map(([role, text], i) => ({ role, text, before: 8 - i })),
+    { role: 'user' as const, text: e.prompt, before: 1 },
+  ];
+
+  const tool = toolFor(e);
+  if (tool) turns.push({ role: 'system', text: '', before: 0, tool });
+
+  if (answer.text) {
+    turns.push({ role: 'bot', text: answer.text, before: 0, focus: true });
+  } else {
+    /* Nothing reached the visitor. Say so where the reply would have been —
+       an empty gap is the one thing a transcript must never leave. */
+    turns.push({
+      role: 'system',
+      text:
+        e.outcome === 'timeout'
+          ? 'No first token inside 30s. The widget gave up and the visitor left.'
+          : e.outcome === 'rate limited'
+            ? '429 from the provider. Retried once, then queued behind 6 other calls.'
+            : 'Upstream 500. Nothing was shown to the visitor.',
+      before: 0,
+      focus: true,
+    });
+  }
+
+  if (answer.then) turns.push({ role: 'user', text: answer.then, before: 0 });
+  if (e.outcome === 'escalated')
+    turns.push({
+      role: 'system',
+      text: `${brand.assistant.human}, ${brand.assistant.humanRole}, joined`,
+      before: 0,
+    });
+
+  return turns;
+}
+
+/* ==========================================================================
+   The diary
+
+   Five weeks either side of today, so the calendar has a past to report on
+   and a future to fill. Deterministic per brand: the same week always looks
+   the same, which is what makes it a demo rather than a lava lamp.
+   ========================================================================== */
+
+const DIARY_NAMES = [
+  'Priya Raghunathan', 'Tomas Beckett', 'Hélène Dufort', 'Marion Alvarez', 'Aiman Hakim',
+  'Nurul Amira', 'Daniel Tan', 'Grace Okafor', 'Rowan Petit', 'Yusuf Demir',
+  'Ines Kowalski', 'Rafe Coleman', 'Bea Salcedo', 'Theo Marchetti', 'Dana Whitlock',
+  'George Adeyemi', 'Cleo Nakamura', 'Idris Mensah', 'Freya Lindqvist', 'Omar Haddad',
+];
+
+const DIARY_SLOTS = [
+  '09:00', '09:45', '10:30', '11:15', '12:00', '13:30',
+  '14:15', '15:00', '15:45', '16:30', '17:15', '18:00', '19:00', '20:00',
+];
+
+/* Nobody books a table for nine in the morning. Service, not office hours. */
+const SITTINGS = [
+  '17:00', '17:30', '18:00', '18:30', '19:00',
+  '19:30', '20:00', '20:30', '21:00', '21:30',
+];
+
+/* A restaurant books a table, not a dish — the diary should say where they
+   are sitting, and the kitchen ticket is a separate thing entirely. */
+const AREAS = ['Main room', 'Window table', 'Terrace', 'Bar counter', 'Private booth'];
+
+/** Average spend per cover, for pricing a table before anyone has ordered. */
+const PER_COVER = 24;
+
+const SOURCES2: DiaryEntry['source'][] = ['Saint', 'Saint', 'Saint', 'Front desk', 'Saint', 'Phone', 'Saint', 'Walk-in'];
+const DIARY_CHANNELS: ChannelId[] = ['web', 'web', 'whatsapp', 'web', 'instagram', 'sms', 'web', 'whatsapp'];
+
+/* A day that has already happened can only have finished one way; a day that
+   has not can only be waiting for one. Splitting the tables is what keeps
+   'no show' out of next Tuesday. */
+const PAST: { status: BookingStatus; weight: number }[] = [
+  { status: 'attended', weight: 78 },
+  { status: 'cancelled', weight: 12 },
+  { status: 'no show', weight: 6 },
+  { status: 'rescheduled', weight: 4 },
+];
+
+const AHEAD: { status: BookingStatus; weight: number }[] = [
+  { status: 'booked', weight: 76 },
+  { status: 'rescheduled', weight: 12 },
+  { status: 'cancelled', weight: 7 },
+  { status: 'waitlist', weight: 5 },
+];
+
+const shiftDate = (days: number) => {
+  const d = new Date();
+  d.setHours(12, 0, 0, 0);
+  d.setDate(d.getDate() + days);
+  return d;
+};
+
+/** Fourteen days back, twenty-one forward. Quiet Sundays, busy Saturdays. */
+export function diaryFor(brand: Brand): DiaryEntry[] {
+  const items = brand.catalog.filter((i) => i.available && i.categoryId !== 'retail');
+  const menu = items.length ? items : brand.catalog;
+  const team = brand.people.filter((p) => p.available !== false);
+  const slots = brand.vertical === 'restaurant' ? SITTINGS : DIARY_SLOTS;
+  const out: DiaryEntry[] = [];
+  let n = 0;
+
+  for (let offset = -14; offset <= 21; offset++) {
+    const day = shiftDate(offset);
+    const dow = day.getDay();
+    const key = iso(day);
+    const r = (field: string) => hash(`${brand.id}/${key}/${field}/diary`) / 4294967296;
+
+    /* Sunday is closed almost everywhere in these three; Saturday is short
+       and busy. Everything else runs a normal book. */
+    if (dow === 0) continue;
+    const load = dow === 6 ? 3 + Math.floor(r('load') * 3) : 4 + Math.floor(r('load') * 5);
+
+    const used = new Set<string>();
+    for (let k = 0; k < load; k++) {
+      const rr = (field: string) => hash(`${brand.id}/${key}/${k}/${field}`) / 4294967296;
+
+      let slot = slots[Math.floor(rr('slot') * slots.length)];
+      /* Two people cannot have the same chair at the same time. */
+      let guard = 0;
+      while (used.has(slot) && guard++ < slots.length) {
+        slot = slots[(slots.indexOf(slot) + 1) % slots.length];
+      }
+      used.add(slot);
+
+      const item = menu[Math.floor(rr('item') * menu.length)];
+      const person = team.length ? team[Math.floor(rr('who') * team.length)] : undefined;
+      const name = DIARY_NAMES[Math.floor(rr('name') * DIARY_NAMES.length)];
+      const picked = weighted(offset < 0 ? PAST : AHEAD, rr('status'));
+      const table = brand.vertical === 'restaurant';
+      const party = table ? 2 + Math.floor(rr('party') * 6) : undefined;
+
+      out.push({
+        id: `${brand.id}-d${n}`,
+        ref: `${brand.vertical === 'restaurant' ? 'TBL' : 'APT'}-${4100 + n * 7}`,
+        date: key,
+        slot,
+        minutes: table ? 90 : Number.parseInt(item.duration ?? '40', 10) || 40,
+        customer: name,
+        initials: initialsOf(name),
+        contact: `+44 7700 900 ${100 + (n % 800)}`,
+        personId: person?.id,
+        personName: person?.name,
+        personHue: person?.hue,
+        /* No catalog item behind a table, so the drawer shows the booking
+           rather than a dish nobody has ordered yet. */
+        itemId: table ? '' : item.id,
+        itemName: table ? AREAS[Math.floor(rr('area') * AREAS.length)] : item.name,
+        party,
+        status: picked.status,
+        channel: DIARY_CHANNELS[n % DIARY_CHANNELS.length],
+        source: SOURCES2[n % SOURCES2.length],
+        value: table ? (party ?? 2) * PER_COVER : item.price,
+        movedFrom:
+          picked.status === 'rescheduled'
+            ? iso(shiftDate(offset - 2 - Math.floor(rr('moved') * 6)))
+            : undefined,
+        note:
+          picked.status === 'cancelled'
+            ? 'Cancelled in chat, slot released automatically'
+            : picked.status === 'no show'
+              ? 'Reminder delivered, nobody arrived'
+              : picked.status === 'waitlist'
+                ? 'Holding for the first cancellation'
+                : undefined,
+      });
+      n++;
+    }
+  }
+
+  return out;
+}
+
+/** Counts for the calendar cells, keyed by ISO date. */
+export function diaryByDate(entries: DiaryEntry[]) {
+  const map = new Map<string, DiaryEntry[]>();
+  for (const e of entries) {
+    const list = map.get(e.date);
+    if (list) list.push(e);
+    else map.set(e.date, [e]);
+  }
+  for (const list of map.values()) list.sort((a, b) => a.slot.localeCompare(b.slot));
+  return map;
+}
+
+/** Live in the diary's sense: still expected to happen. */
+export const isOpenBooking = (s: BookingStatus) =>
+  s === 'booked' || s === 'rescheduled' || s === 'waitlist';

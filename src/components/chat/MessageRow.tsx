@@ -1,5 +1,6 @@
 import { Icon, type IconName } from '../Icon';
 import { BlockView } from './Blocks';
+import { Markdown } from './Markdown';
 import type { Action, Brand, CartLine, Message } from '../../lib/types';
 import { clockTime, cx } from '../../lib/utils';
 
@@ -64,7 +65,9 @@ export function MessageRow({
         {message.blocks.map((block, i) =>
           block.kind === 'text' ? (
             <div key={i} className={cx('bubble', i === message.blocks.length - 1 && 'tail')}>
-              {block.text}
+              {/* Only what the assistant wrote is markup. A visitor typing
+                  *sigh* or a 1. at the start of a line meant exactly that. */}
+              {isUser ? block.text : <Markdown text={block.text} />}
             </div>
           ) : (
             <BlockView

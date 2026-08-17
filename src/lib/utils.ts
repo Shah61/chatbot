@@ -3,6 +3,25 @@ import type { Message } from './types';
 export const cx = (...parts: (string | false | null | undefined)[]) =>
   parts.filter(Boolean).join(' ');
 
+/* --- Platform --------------------------------------------------------------
+   One thing in the UI genuinely cares: the modifier key we print. ⌘ is not a
+   key on a Windows keyboard, and in Segoe UI it is a glyph most users read as
+   a decorative knot. userAgentData is the non-deprecated read; platform is
+   the fallback for the browsers that never shipped it. */
+
+const uaPlatform = (): string => {
+  if (typeof navigator === 'undefined') return '';
+  const hinted = (navigator as { userAgentData?: { platform?: string } }).userAgentData?.platform;
+  return hinted || navigator.platform || navigator.userAgent || '';
+};
+
+export const isMac = /mac/i.test(uaPlatform());
+
+export const MOD_KEY = isMac ? '⌘' : 'Ctrl';
+
+/** The same shortcut printed as one label. ⌘ needs no space; Ctrl does. */
+export const MOD_HINT = `${MOD_KEY}${isMac ? '' : ' '}K`;
+
 let seq = 0;
 export const uid = (p = 'm') => `${p}-${Date.now().toString(36)}-${seq++}`;
 

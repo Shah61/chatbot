@@ -8,6 +8,7 @@ import type { Brand, BrandId, CatalogItem, FaqEntry, Person, Scheme } from './ty
 export type AdminPage =
   | 'overview'
   | 'inbox'
+  | 'chatlog'
   | 'ledger'
   | 'catalog'
   | 'rota'

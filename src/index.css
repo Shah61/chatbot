@@ -6,9 +6,36 @@
 
 @import './themes.css';
 
+/* Metric-matched stand-ins. Until the webfonts land — or if they never do,
+   because a corporate proxy ate fonts.gstatic.com — Windows falls back to
+   Segoe UI, which sets a good deal smaller than Inter and would reflow the
+   whole page on swap. The overrides make the substitute occupy the same box,
+   so the only thing that changes is the shape of the letters. */
+@font-face {
+  font-family: 'Inter Fallback';
+  src: local('Segoe UI'), local('Roboto'), local('Helvetica Neue'), local('Arial');
+  size-adjust: 107%;
+  ascent-override: 90%;
+  descent-override: 22.5%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Cormorant Fallback';
+  src: local('Georgia'), local('Times New Roman');
+  size-adjust: 88%;
+  ascent-override: 110%;
+  descent-override: 30%;
+  line-gap-override: 0%;
+}
+
 :root {
-  --font-display: 'Cormorant Garamond', 'Times New Roman', serif;
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* Georgia before Times: it is on every Windows install and is the only
+     stock serif that does not make the display face look like a memo. */
+  --font-display: 'Cormorant Garamond', 'Cormorant Fallback', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Inter', 'Inter Fallback', -apple-system, BlinkMacSystemFont,
+    'Segoe UI Variable Text', 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', 'Cascadia Mono', 'Segoe UI Mono',
+    Menlo, Consolas, monospace;
 
   --shadow-xs: 0 1px 1.5px rgba(20, 14, 8, 0.06);
   --shadow-sm: 0 1px 2px rgba(20, 14, 8, 0.06), 0 2px 8px rgba(20, 14, 8, 0.05);
@@ -28,6 +55,7 @@
      demo chrome occupies; .app narrows this. Delete the chrome and the default
      is already correct. */
   --vh: 100vh;
+  --vh: 100dvh;
 }
 
 [data-theme='dark'] {
@@ -67,7 +95,14 @@ body {
   background: var(--paper);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
+  /* optimizeLegibility buys kerning we already get from the font, and on
+     DirectWrite it costs sub-pixel positioning — letters land on whole pixels
+     and the spacing goes lumpy. The default is the better-looking option off
+     the Mac. */
+  text-rendering: auto;
+  font-optical-sizing: auto;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   transition: background 0.5s var(--ease), color 0.5s var(--ease);
 }
 
@@ -107,26 +142,37 @@ img {
   border-radius: 4px;
 }
 
-.scroll-area {
+/* Scrollbars
+   macOS hides these until you scroll, so the design was only ever seen
+   without them. Windows and Linux draw a permanent 17px slab of system grey
+   instead — inside the chat widget that is 4% of the width, and it reads as
+   chrome nobody designed. Style every scroller, not just the ones that
+   remembered the class, so the app looks the same on all three. */
+* {
   scrollbar-width: thin;
   scrollbar-color: var(--line-strong) transparent;
 }
-.scroll-area::-webkit-scrollbar {
+::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
-.scroll-area::-webkit-scrollbar-track {
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
   background: transparent;
 }
-.scroll-area::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb {
   background: var(--line-strong);
   border-radius: 99px;
   border: 3px solid transparent;
   background-clip: content-box;
 }
-.scroll-area::-webkit-scrollbar-thumb:hover {
+::-webkit-scrollbar-thumb:hover {
   background: var(--ink-4);
   background-clip: content-box;
+}
+/* Kept as a name the markup can still ask for; the styling is global now. */
+.scroll-area {
+  overscroll-behavior: contain;
 }
 
 /* ==========================================================================
@@ -303,9 +349,13 @@ img {
   color: var(--ink-3);
   transition: background 0.16s var(--ease), color 0.16s var(--ease);
 }
-.icon-btn:hover {
+.icon-btn:hover:not(:disabled) {
   background: var(--surface-2);
   color: var(--ink);
+}
+.icon-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
 }
 
 .card {

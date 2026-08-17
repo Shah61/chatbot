@@ -5,6 +5,7 @@
   background: var(--paper);
   /* The bar eats into every pinned section below it. */
   --vh: calc(100vh - 54px);
+  --vh: calc(100dvh - 54px);
 }
 
 /* Demo chrome — the one part you would delete before shipping */

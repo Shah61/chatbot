@@ -18,6 +18,7 @@
   flex-direction: column;
   width: 418px;
   height: min(700px, calc(100vh - 186px));
+  height: min(700px, calc(100dvh - 186px));
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: var(--r-xl);
@@ -30,6 +31,7 @@
 .widget.is-wide {
   width: min(940px, calc(100vw - 52px));
   height: min(830px, calc(100vh - 140px));
+  height: min(830px, calc(100dvh - 140px));
 }
 
 /* --- Header ---------------------------------------------------------------- */
@@ -1377,12 +1379,13 @@
   .widget,
   .widget.is-wide {
     width: 100%;
-    height: min(620px, calc(100vh - 100px));
+    height: min(620px, calc(100dvh - 100px));
   }
   .launcher {
     align-self: flex-end;
   }
-  
+}
+
 /* --- Superseded pickers ------------------------------------------------------
    The model often re-checks availability while confirming, which used to
    stack two identical grids. The older one folds to a single line: the
@@ -1464,4 +1467,266 @@
 
 .launcher {
   box-shadow: var(--shadow-lg), 0 0 0 1px color-mix(in srgb, var(--accent-ink) 12%, transparent);
+}
+
+/* ==========================================================================
+   Markdown
+   The assistant writes markdown, so a bubble has to hold a heading, a table
+   and a code block without stopping looking like a bubble. Everything is
+   sized in em against the bubble's own 13.7px, so the same rules hold when
+   the widget expands and in the console's transcript view.
+   ========================================================================== */
+
+.md > *:first-child {
+  margin-top: 0;
+}
+.md > *:last-child {
+  margin-bottom: 0;
+}
+
+.md p {
+  margin: 0 0 0.7em;
+}
+
+/* The product's voice is the serif, and a bubble is not exempt. Below h2 the
+   sizes are too close together for it to read as anything but a wobble, so
+   those go to the sans at weight. */
+.md h1,
+.md h2 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.012em;
+  line-height: 1.18;
+  margin: 1.05em 0 0.42em;
+}
+.md h1 {
+  font-size: 1.44em;
+}
+.md h2 {
+  font-size: 1.24em;
+}
+.md h3,
+.md h4,
+.md h5,
+.md h6 {
+  font-weight: 600;
+  line-height: 1.35;
+  margin: 1em 0 0.36em;
+  font-size: 1.05em;
+}
+.md h4,
+.md h5,
+.md h6 {
+  font-size: 1em;
+  color: var(--ink-2);
+}
+
+.md ul,
+.md ol {
+  margin: 0 0 0.7em;
+  padding-left: 1.4em;
+}
+.md ul {
+  list-style: disc;
+}
+.md ul ul {
+  list-style: circle;
+}
+.md ol {
+  list-style: decimal;
+}
+.md li {
+  margin: 0.16em 0;
+}
+.md li::marker {
+  color: var(--ink-4);
+}
+.md ol > li::marker {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+/* Tight by default — one line per bullet is the common case and paragraph
+   margins inside it just look like a bug. A blank line between items is the
+   writer asking for air, and md-loose gives it back. */
+.md li > p {
+  margin: 0;
+}
+.md ul ul,
+.md ul ol,
+.md ol ul,
+.md ol ol {
+  margin: 0.16em 0 0.2em;
+}
+.md .md-loose > li {
+  margin: 0.5em 0;
+}
+.md .md-loose > li > p {
+  margin: 0 0 0.4em;
+}
+.md .md-loose > li > *:last-child {
+  margin-bottom: 0;
+}
+
+.md li.md-task {
+  list-style: none;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5em;
+  margin-left: -1.25em;
+}
+.md-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 13px;
+  height: 13px;
+  margin-top: 0.28em;
+  flex-shrink: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: max(3px, calc(var(--r-xs) - 3px));
+  color: transparent;
+}
+.md-box.on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.md a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--accent-line);
+  overflow-wrap: anywhere;
+}
+.md a:hover {
+  text-decoration-color: var(--accent);
+}
+/* svg is display:block globally, which would drop these onto their own line. */
+.md-ext,
+.md-ico {
+  display: inline-block;
+  vertical-align: -1px;
+  opacity: 0.65;
+}
+.md-ext {
+  margin-left: 2px;
+}
+.md-ico {
+  margin-right: 3px;
+}
+
+.md code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  padding: 0.12em 0.36em;
+  border-radius: max(4px, calc(var(--r-xs) - 2px));
+  background: var(--surface-2);
+  border: 1px solid var(--line-soft);
+  overflow-wrap: anywhere;
+}
+
+.md-pre {
+  margin: 0.6em 0 0.75em;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  overflow: hidden;
+  max-width: 100%;
+}
+.md-pre-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 5px 4px 11px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line-soft);
+}
+.md-pre-head span {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+.md-pre-head button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: max(5px, calc(var(--r-xs) - 2px));
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--ink-3);
+  transition: background 0.16s var(--ease), color 0.16s var(--ease);
+}
+.md-pre-head button:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+.md-pre pre {
+  margin: 0;
+  padding: 10px 12px;
+  overflow-x: auto;
+}
+.md-pre code {
+  font-size: 12px;
+  line-height: 1.55;
+  white-space: pre;
+  background: none;
+  border: none;
+  padding: 0;
+  overflow-wrap: normal;
+}
+
+.md blockquote {
+  margin: 0.6em 0 0.7em;
+  padding: 1px 0 1px 12px;
+  border-left: 2px solid var(--accent-line);
+  color: var(--ink-2);
+}
+
+.md hr {
+  margin: 0.9em 0;
+  border: none;
+  border-top: 1px solid var(--line);
+}
+
+.md-table {
+  margin: 0.6em 0 0.75em;
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+}
+.md-table table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.94em;
+}
+.md-table th,
+.md-table td {
+  padding: 6px 11px;
+  text-align: left;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--line-soft);
+}
+.md-table th {
+  background: var(--surface-2);
+  font-size: 0.93em;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.md-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Prose shrinks to its longest line; a table or a code block would rather
+   have the whole bubble than be scrolled inside a stub of one. */
+.bubble:has(.md-table),
+.bubble:has(.md-pre) {
+  width: 100%;
 }

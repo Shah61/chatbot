@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Icon, type IconName } from './Icon';
 import { BRANDS, BRAND_ORDER } from '../lib/brands';
 import { useStore, type AdminPage } from '../lib/store';
-import { cx, money } from '../lib/utils';
+import { MOD_KEY, cx, money } from '../lib/utils';
 import './palette.css';
 
 /* ==========================================================================
@@ -70,6 +70,15 @@ export function CommandPalette({
     const nav: Cmd[] = [
       { id: 'n-over', label: 'Overview', group: 'Go to', icon: 'grid', keywords: 'dashboard stats', run: go('overview') },
       { id: 'n-inbox', label: 'Inbox', group: 'Go to', icon: 'inbox', keywords: 'conversations chat', run: go('inbox') },
+      {
+        id: 'n-log',
+        label: 'Chatlog',
+        hint: 'Tokens, spend and the answers that missed',
+        group: 'Go to',
+        icon: 'sparkle',
+        keywords: 'ai cost tokens spend bill model errors bad answer flagged',
+        run: go('chatlog'),
+      },
       {
         id: 'n-ledger',
         label: restaurant ? 'Orders & tables' : 'Bookings',
@@ -262,7 +271,7 @@ export function CommandPalette({
             <kbd>↵</kbd> open
           </span>
           <span>
-            <kbd>⌘</kbd>
+            <kbd>{MOD_KEY}</kbd>
             <kbd>K</kbd> toggle
           </span>
         </div>

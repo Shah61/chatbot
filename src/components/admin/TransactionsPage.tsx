@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Icon, type IconName } from '../Icon';
-import { hourly, transactionsFor } from '../../lib/activity';
+import { BookingDrawer } from './BookingDrawer';
+import { BookingsList } from './BookingsList';
+import { DiaryCalendar } from './DiaryCalendar';
+import { diaryFor, hourly, isOpenBooking, transactionsFor } from '../../lib/activity';
 import { useStore } from '../../lib/store';
-import type { ChannelId } from '../../lib/types';
-import { cx, money } from '../../lib/utils';
+import type { ChannelId, DiaryEntry } from '../../lib/types';
+import { cx, iso, money } from '../../lib/utils';
 
 const FILTERS = ['All', 'Confirmed', 'Preparing', 'Pending', 'Completed', 'Cancelled'] as const;
 
@@ -25,34 +28,46 @@ const CHANNEL: Record<ChannelId, IconName> = {
 export function TransactionsPage() {
   const { brand } = useStore();
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>('All');
+  const [opened, setOpened] = useState<string | null>(null);
   const all = transactionsFor(brand);
   const rows = all.filter((t) => (filter === 'All' ? true : t.status === filter.toLowerCase()));
+
+  const diary = useMemo(() => diaryFor(brand), [brand]);
+  const booking = diary.find((e) => e.id === opened);
+  const open = (e: DiaryEntry) => setOpened(e.id);
 
   const load = hourly[brand.id];
   const peak = Math.max(...load);
   const peakHour = load.indexOf(peak);
-  const bySaint = all.filter((t) => t.source === 'Saint').length;
   const revenue = all.reduce((n, t) => n + t.total, 0);
   const restaurant = brand.vertical === 'restaurant';
+
+  /* The diary is the honest source for these now — they were hardcoded when
+     there was nothing behind them to count. */
+  const today = iso(new Date());
+  const ahead = diary.filter((e) => e.date >= today && isOpenBooking(e.status));
+  const past = diary.filter((e) => e.date < today);
+  const noShow = past.filter((e) => e.status === 'no show').length;
+  const moved = diary.filter((e) => e.status === 'rescheduled').length;
 
   const tiles = [
     {
       icon: restaurant ? 'bag' : 'calendar',
-      label: restaurant ? 'Orders this week' : 'Booked this week',
-      value: restaurant ? '312' : '86',
-      note: `${bySaint} of ${all.length} on this page came through Saint`,
+      label: restaurant ? 'Tables ahead' : 'Booked ahead',
+      value: String(ahead.length),
+      note: `${money(ahead.reduce((n, e) => n + e.value, 0), brand.currency)} in the next three weeks`,
     },
     {
-      icon: 'trendUp',
-      label: restaurant ? 'Average order' : 'Diary utilisation',
-      value: restaurant ? money(62, brand.currency) : '78%',
-      note: restaurant ? 'up RM 8 since Saint started upselling' : 'up from 61% before Saint',
+      icon: 'refresh',
+      label: 'Moved by Saint',
+      value: String(moved),
+      note: 'rescheduled in chat, without a call to the desk',
     },
     {
       icon: 'bell',
-      label: restaurant ? 'Late cancellations' : 'No-show rate',
-      value: restaurant ? '4' : '2.1%',
-      note: 'reminders go out automatically',
+      label: 'No-show rate',
+      value: past.length ? `${((noShow / past.length) * 100).toFixed(1)}%` : '0%',
+      note: `${noShow} in the last fortnight · reminders go out automatically`,
     },
   ] as const;
 
@@ -75,6 +90,10 @@ export function TransactionsPage() {
           </div>
         ))}
       </div>
+
+      <DiaryCalendar entries={diary} onOpen={open} />
+
+      <BookingsList entries={diary} onOpen={open} />
 
       <div className="panel">
         <div className="panel-head">
@@ -109,10 +128,13 @@ export function TransactionsPage() {
         </div>
       </div>
 
+      {/* Only a kitchen has a pass. For the clinic and the salon everything
+          Saint closed is a booking, and the diary above already has it. */}
+      {restaurant && (
       <div className="panel">
         <div className="panel-head">
           <div>
-            <h3>{restaurant ? 'The pass' : 'The diary'}</h3>
+            <h3>The pass</h3>
             <p className="meta">
               {rows.length} of {all.length} · {money(revenue, brand.currency)} total
             </p>
@@ -183,6 +205,9 @@ export function TransactionsPage() {
           </div>
         </div>
       </div>
+      )}
+
+      {booking && <BookingDrawer entry={booking} onClose={() => setOpened(null)} />}
     </div>
   );
 }

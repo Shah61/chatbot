@@ -146,6 +146,13 @@
   min-height: 0;
   position: relative;
 }
+
+/* Held while a view's chunk arrives. Paper-coloured and silent — on a warm
+   cache it is never on screen long enough to read a spinner. */
+.booting {
+  height: 100%;
+  background: var(--paper);
+}
 .body.scrolls {
   overflow-y: auto;
 }

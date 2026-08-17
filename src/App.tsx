@@ -1,13 +1,24 @@
-import { useEffect, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import { Icon } from './components/Icon';
-import { Site } from './components/site/Site';
-import { ChatWidget } from './components/chat/ChatWidget';
-import { AdminConsole } from './components/admin/AdminConsole';
 import { CommandPalette } from './components/CommandPalette';
 import { BRANDS, BRAND_ORDER, PRODUCT } from './lib/brands';
 import { LiveProvider, useLive } from './lib/live';
 import { StoreProvider, useStore } from './lib/store';
 import { cx } from './lib/utils';
+
+/* The storefront and the console are split into their own chunks, which also
+   splits their stylesheets. Bundled together they produced a single ~97 kB CSS
+   file, and everything past roughly 64 kB of it was arriving truncated in
+   production — first the demo chrome, then the whole console. Three files of
+   12/50/32 kB keep every one of them well clear of that ceiling, and the
+   storefront stops shipping an admin console it never renders. */
+const Site = lazy(() => import('./components/site/Site').then((m) => ({ default: m.Site })));
+const ChatWidget = lazy(() =>
+  import('./components/chat/ChatWidget').then((m) => ({ default: m.ChatWidget })),
+);
+const AdminConsole = lazy(() =>
+  import('./components/admin/AdminConsole').then((m) => ({ default: m.AdminConsole })),
+);
 
 export default function App() {
   return (
@@ -97,14 +108,16 @@ function Shell() {
       <CommandPalette view={view} setView={setView} />
 
       <div className={cx('body', view === 'store' && 'scrolls')}>
-        {view === 'store' ? (
-          <>
-            <Site />
-            <ChatWidget />
-          </>
-        ) : (
-          <AdminConsole />
-        )}
+        <Suspense fallback={<div className="booting" />}>
+          {view === 'store' ? (
+            <>
+              <Site />
+              <ChatWidget />
+            </>
+          ) : (
+            <AdminConsole />
+          )}
+        </Suspense>
       </div>
     </div>
   );
